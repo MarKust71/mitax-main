@@ -3,7 +3,7 @@ import { ThemeProvider } from '@mui/material';
 import { Helmet } from 'react-helmet';
 
 import { theme } from './theme/theme';
-import { Main } from './app/main/Main';
+import { MainRouter } from './routing/MainRouter';
 
 export const App = () => {
   return (
@@ -12,7 +12,7 @@ export const App = () => {
         <title>MITAX Consulting sp. z o.o.</title>
       </Helmet>
       <ThemeProvider theme={theme}>
-        <Main />
+        <MainRouter />
       </ThemeProvider>
     </>
   );
