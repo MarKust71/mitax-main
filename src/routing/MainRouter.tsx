@@ -5,6 +5,8 @@ import { Main } from '../app/main/Main';
 import { Blog } from '../app/blog/Blog';
 import { Contact } from '../app/contact/Contact';
 
+import { Error404 } from './Error404';
+
 export const MainRouter = () => {
   return (
     <BrowserRouter>
@@ -12,6 +14,7 @@ export const MainRouter = () => {
         <Route path="/blog" element={<Blog />} />
         <Route path="/kontakt" element={<Contact />} />
         <Route path="/" element={<Main />} />
+        <Route path="*" element={<Error404 />} />
       </Routes>
     </BrowserRouter>
   );
