@@ -18,7 +18,7 @@ export const Main: React.FC<MainProps> = ({}) => {
         mail: <Link href={'mailto: biuro@mitax.pl'}>biuro@mitax.pl</Link>
       </Typography>
       <Box mb={2} />
-      <Typography>NIP 6152043432, REGON 022210312, VAT-ID PL6152043432, KRS 0000473064</Typography>
+      <Typography>NIP 615-204-34-32, REGON 022210312, VAT-ID PL6152043432, KRS 0000473064</Typography>
       <Typography>
         Rejestr Przedsiębiorców - Sąd Rejonowy dla Wrocławia-Fabrycznej, IX Wydział Gospodarczy KRS
       </Typography>
