@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, useTheme } from '@mui/material';
 
 import { useUnits } from '../../hooks/useUnits/useUnits';
@@ -11,7 +11,7 @@ export const HousingCommunity: React.FC<HousingCommunityProps> = ({}) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  const { create: createMember } = useMembers();
+  const { create: createMember, fetchAll, members } = useMembers();
   const { create: createUnit } = useUnits();
 
   const handleClick = async () => {
@@ -41,10 +41,17 @@ export const HousingCommunity: React.FC<HousingCommunityProps> = ({}) => {
       isCommercial: false,
     };
 
-    await createMember(memberData);
+    // await createMember(memberData);
 
-    await createUnit(unitData);
+    // await createUnit(unitData);
+
+    await fetchAll();
   };
+
+  useEffect(() => {
+    // TODO: remove!
+    console.log({ members });
+  }, [members]);
 
   return <Button onClick={handleClick}>HousingCommunity</Button>;
 };
