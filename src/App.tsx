@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { createContext } from 'react';
 // Import the functions you need from the SDKs you need
 import { ThemeProvider } from '@mui/material';
 import { Helmet } from 'react-helmet';
 import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
+import { getFirestore } from 'firebase/firestore';
 
 import { theme } from './theme/theme';
 import { MainRouter } from './routing/MainRouter';
@@ -27,6 +28,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
+// Initialize Cloud Firestore and get a reference to the service
+const db = getFirestore(app);
+
+export const FirebaseContext = createContext({ app, db });
+
 export const App = () => {
   return (
     <>
@@ -34,9 +40,11 @@ export const App = () => {
         <title>MITAX Consulting sp. z o.o.</title>
       </Helmet>
 
-      <ThemeProvider theme={theme}>
-        <MainRouter />
-      </ThemeProvider>
+      <FirebaseContext.Provider value={{ app, db }}>
+        <ThemeProvider theme={theme}>
+          <MainRouter />
+        </ThemeProvider>
+      </FirebaseContext.Provider>
     </>
   );
 };
