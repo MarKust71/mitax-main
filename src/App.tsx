@@ -5,9 +5,12 @@ import { Helmet } from 'react-helmet';
 import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
 import { getFirestore } from 'firebase/firestore';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { theme } from './theme/theme';
 import { MainRouter } from './routing/MainRouter';
+
+const queryClient = new QueryClient();
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -41,9 +44,11 @@ export const App = () => {
       </Helmet>
 
       <FirebaseContext.Provider value={{ app, db }}>
-        <ThemeProvider theme={theme}>
-          <MainRouter />
-        </ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider theme={theme}>
+            <MainRouter />
+          </ThemeProvider>
+        </QueryClientProvider>
       </FirebaseContext.Provider>
     </>
   );
