@@ -6,9 +6,11 @@ import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
 import { getFirestore } from 'firebase/firestore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Provider } from 'react-redux';
 
 import { theme } from './theme/theme';
 import { MainRouter } from './routing/MainRouter';
+import { store } from './store/store';
 
 const queryClient = new QueryClient();
 
@@ -43,13 +45,15 @@ export const App = () => {
         <title>MITAX Consulting sp. z o.o.</title>
       </Helmet>
 
-      <FirebaseContext.Provider value={{ app, db }}>
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider theme={theme}>
-            <MainRouter />
-          </ThemeProvider>
-        </QueryClientProvider>
-      </FirebaseContext.Provider>
+      <Provider store={store}>
+        <FirebaseContext.Provider value={{ app, db }}>
+          <QueryClientProvider client={queryClient}>
+            <ThemeProvider theme={theme}>
+              <MainRouter />
+            </ThemeProvider>
+          </QueryClientProvider>
+        </FirebaseContext.Provider>
+      </Provider>
     </>
   );
 };
