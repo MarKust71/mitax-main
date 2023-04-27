@@ -11,10 +11,11 @@ export const HousingCommunity: React.FC<HousingCommunityProps> = ({}) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  const { create: createMember, fetchAll, members } = useMembers();
-  const { create: createUnit } = useUnits();
+  const { create: createMember, fetchAll: fetchAllMembers, members } = useMembers();
+  const { create: createUnit, fetchAll: fetchAllUnits, units } = useUnits();
 
   const handleClick = async () => {
+    /*
     const memberData = {
       firstName: 'Katarzyna',
       lastName: 'Ryszkiewicz',
@@ -41,17 +42,23 @@ export const HousingCommunity: React.FC<HousingCommunityProps> = ({}) => {
       isCommercial: false,
     };
 
-    // await createMember(memberData);
+    await createMember(memberData);
+    await createUnit(unitData);
+*/
 
-    // await createUnit(unitData);
-
-    await fetchAll();
+    await fetchAllMembers();
+    await fetchAllUnits();
   };
 
   useEffect(() => {
     // TODO: remove!
     console.log({ members });
   }, [members]);
+
+  useEffect(() => {
+    // TODO: remove!
+    console.log({ units });
+  }, [units]);
 
   return <Button onClick={handleClick}>HousingCommunity</Button>;
 };
