@@ -1,64 +1,79 @@
-import React, { useEffect } from 'react';
-import { Button, useTheme } from '@mui/material';
+import React, { useState } from 'react';
+import {
+  AppBar,
+  Box,
+  Button,
+  Container,
+  IconButton,
+  Toolbar,
+  Typography,
+  useTheme,
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
 
 import { useUnits } from '../../hooks/useUnits/useUnits';
 import { useMembers } from '../../hooks/useMembers/useMembers';
 
 import { HousingCommunityProps } from './HousingCommunity.types';
 import { useStyles } from './HousingCommunity.styles';
+import { appTitle, navItems } from './HousingCommunity.constants';
+import { HousingCommunityDrawer } from './housingCommunityDrawer/HousingCommunityDrawer';
 
 export const HousingCommunity: React.FC<HousingCommunityProps> = ({}) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  const { create: createMember, fetchAll: fetchAllMembers, members } = useMembers();
-  const { create: createUnit, fetchAll: fetchAllUnits, units } = useUnits();
+  const { fetchAll: fetchAllMembers } = useMembers();
+  const { fetchAll: fetchAllUnits } = useUnits();
+
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen((prevState) => !prevState);
+  };
 
   const handleClick = async () => {
-    /*
-    const memberData = {
-      firstName: 'Katarzyna',
-      lastName: 'Ryszkiewicz',
-      email: 'marek.kustosz@gmail.com',
-      phone: '+48600414149',
-      address: {
-        name: 'Marek Kustosz',
-        street: 'Rymarska 45/3',
-        city: 'Wrocław',
-        zip: '53-206',
-        state: 'PL',
-      },
-    };
-
-    const unitData = {
-      unitNumber: 8,
-      members: [
-        {
-          memberFrom: '2021-09-01',
-          memberTo: null,
-          member: memberData,
-        },
-      ],
-      isCommercial: false,
-    };
-
-    await createMember(memberData);
-    await createUnit(unitData);
-*/
-
     await fetchAllMembers();
     await fetchAllUnits();
   };
 
-  useEffect(() => {
-    // TODO: remove!
-    console.log({ members });
-  }, [members]);
+  return (
+    <Container>
+      <AppBar component="nav">
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { sm: 'none' } }}
+          >
+            <MenuIcon />
+          </IconButton>
 
-  useEffect(() => {
-    // TODO: remove!
-    console.log({ units });
-  }, [units]);
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
+          >
+            {appTitle}
+          </Typography>
 
-  return <Button onClick={handleClick}>HousingCommunity</Button>;
+          <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+            {navItems.map((item) => (
+              <Button key={item} sx={{ color: '#fff' }}>
+                {item}
+              </Button>
+            ))}
+          </Box>
+        </Toolbar>
+      </AppBar>
+
+      <Box component="nav">
+        <HousingCommunityDrawer open={mobileOpen} onClose={handleDrawerToggle} />
+      </Box>
+
+      <Button onClick={handleClick}>HousingCommunity</Button>
+    </Container>
+  );
 };
