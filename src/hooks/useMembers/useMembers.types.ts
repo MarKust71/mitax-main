@@ -21,6 +21,7 @@ export type MemberWithPeriod = {
   member: Member;
   memberFrom: string;
   memberTo: string | null;
+  share: number;
 };
 
 export type CreateMemberDTO = Omit<Member, 'memberId'>;
