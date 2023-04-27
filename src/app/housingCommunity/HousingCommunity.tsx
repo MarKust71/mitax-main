@@ -3,8 +3,12 @@ import {
   AppBar,
   Box,
   Button,
+  Checkbox,
   Container,
+  FormControlLabel,
+  FormGroup,
   IconButton,
+  TextField,
   Toolbar,
   Typography,
   useTheme,
@@ -27,12 +31,14 @@ export const HousingCommunity: React.FC<HousingCommunityProps> = ({}) => {
   const { fetchAll: fetchAllUnits } = useUnits();
 
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [unitNumber, setUnitNumber] = useState('');
+  const [isCommercial, setIsCommercial] = useState(false);
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
   };
 
-  const handleClick = async () => {
+  const handleSubmit = async () => {
     await fetchAllMembers();
     await fetchAllUnits();
   };
@@ -73,7 +79,45 @@ export const HousingCommunity: React.FC<HousingCommunityProps> = ({}) => {
         <HousingCommunityDrawer open={mobileOpen} onClose={handleDrawerToggle} />
       </Box>
 
-      <Button onClick={handleClick}>HousingCommunity</Button>
+      <Box component="main">
+        <Toolbar />
+
+        <Box mb={2} />
+
+        <Box>
+          <form onSubmit={handleSubmit}>
+            <Typography variant="h6">Dodaj nowy lokal</Typography>
+
+            <TextField
+              fullWidth
+              label="Numer lokalu"
+              margin="normal"
+              onChange={(e) => setUnitNumber(e.target.value)}
+              value={unitNumber}
+              variant="outlined"
+            />
+
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={isCommercial}
+                    onChange={(e) => setIsCommercial(e.target.checked)}
+                    color="primary"
+                  />
+                }
+                label={'Lokal przeznaczony na działalność'}
+              />
+            </FormGroup>
+
+            <Box mb={4} />
+
+            <Button variant="contained" color="primary" type="submit">
+              Zapisz
+            </Button>
+          </form>
+        </Box>
+      </Box>
     </Container>
   );
 };
