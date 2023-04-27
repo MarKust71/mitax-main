@@ -9,11 +9,11 @@ export type Address = {
 };
 
 export type Member = {
-  memberId?: string;
   address: Address | null;
   email: string;
   firstName: string;
   lastName: string;
+  memberId?: string;
   phone: string;
 };
 

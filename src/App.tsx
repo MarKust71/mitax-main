@@ -7,6 +7,9 @@ import { getAnalytics } from 'firebase/analytics';
 import { getFirestore } from 'firebase/firestore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Provider } from 'react-redux';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { pl } from 'date-fns/locale';
 
 import { theme } from './theme/theme';
 import { MainRouter } from './routing/MainRouter';
@@ -45,15 +48,17 @@ export const App = () => {
         <title>MITAX Consulting sp. z o.o.</title>
       </Helmet>
 
-      <Provider store={store}>
-        <FirebaseContext.Provider value={{ app, db }}>
-          <QueryClientProvider client={queryClient}>
-            <ThemeProvider theme={theme}>
-              <MainRouter />
-            </ThemeProvider>
-          </QueryClientProvider>
-        </FirebaseContext.Provider>
-      </Provider>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={pl}>
+        <Provider store={store}>
+          <FirebaseContext.Provider value={{ app, db }}>
+            <QueryClientProvider client={queryClient}>
+              <ThemeProvider theme={theme}>
+                <MainRouter />
+              </ThemeProvider>
+            </QueryClientProvider>
+          </FirebaseContext.Provider>
+        </Provider>
+      </LocalizationProvider>
     </>
   );
 };
