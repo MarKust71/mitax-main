@@ -15,7 +15,7 @@ import { HousingCommunityProps } from './HousingCommunity.types';
 import { useStyles } from './HousingCommunity.styles';
 import { appTitle, navItems } from './HousingCommunity.constants';
 import { HousingCommunityDrawer } from './housingCommunityDrawer/HousingCommunityDrawer';
-import { AddUnit } from './addUnit/AddUnit';
+import { AddMember } from './addMember/AddMember';
 
 export const HousingCommunity: React.FC<HousingCommunityProps> = ({}) => {
   const theme = useTheme();
@@ -69,7 +69,7 @@ export const HousingCommunity: React.FC<HousingCommunityProps> = ({}) => {
         <Box mb={2} />
       </Box>
 
-      <AddUnit />
+      <AddMember />
     </Container>
   );
 };
