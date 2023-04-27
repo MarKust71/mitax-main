@@ -9,7 +9,7 @@ export type Address = {
 };
 
 export type Member = {
-  memberId: string;
+  memberId?: string;
   address: Address | null;
   email: string;
   firstName: string;
@@ -23,7 +23,7 @@ export type MemberWithPeriod = {
   memberTo: string | null;
 };
 
-export type CreateMemberDTO = Member;
+export type CreateMemberDTO = Omit<Member, 'memberId'>;
 
 export type CreateMemberMutation = {
   data: CreateMemberDTO;

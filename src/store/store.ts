@@ -1,11 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 
 import membersReducer from '../reducers/membersReducer/membersReducer';
+import unitsReducer from '../reducers/unitsReducer/unitsReducer';
 
 export const store = configureStore({
   reducer: {
     members: membersReducer,
-    // units: unitsReducer,
+    units: unitsReducer,
   },
 });
 
