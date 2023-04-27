@@ -15,19 +15,15 @@ export const useMembers = () => {
   const members = useAppSelector((state) => state.members.value);
 
   const { mutate, error, status } = useMutation(createMemberMutation, {
-    // Optional onSuccess callback
     onSuccess: () => {
       console.log('Member created');
-      // Do something with the updated data
     },
-    // Optional onError callback
     onError: (error: unknown) => {
       console.error('Failed to create member:', { error });
-      // Handle the error
     },
   });
 
-  const create = async (data: CreateMemberDTO) => {
+  const addMember = async (data: CreateMemberDTO) => {
     await mutate({ data, db });
   };
 
@@ -37,5 +33,5 @@ export const useMembers = () => {
     dispatch(setMembers(members));
   };
 
-  return { create, error, fetchAll, members, status };
+  return { addMember, error, fetchAll, members, status };
 };

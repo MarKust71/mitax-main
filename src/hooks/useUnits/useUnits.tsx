@@ -15,19 +15,15 @@ export const useUnits = () => {
   const units = useAppSelector((state) => state.units.value);
 
   const { mutate, error, status } = useMutation(createUnitMutation, {
-    // Optional onSuccess callback
     onSuccess: () => {
       console.log('Unit created');
-      // Do something with the updated data
     },
-    // Optional onError callback
     onError: (error: unknown) => {
       console.error('Failed to create unit:', { error });
-      // Handle the error
     },
   });
 
-  const create = async (data: CreateUnitDTO) => {
+  const addUnit = async (data: CreateUnitDTO) => {
     await mutate({ db, data });
   };
 
@@ -37,5 +33,5 @@ export const useUnits = () => {
     dispatch(setUnits(units));
   };
 
-  return { create, error, fetchAll, status, units };
+  return { addUnit, error, fetchAll, status, units };
 };
