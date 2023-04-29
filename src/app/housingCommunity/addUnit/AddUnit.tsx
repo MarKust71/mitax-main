@@ -12,7 +12,6 @@ import { Controller, useForm } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
 
 import { useMembers } from '../../../hooks/useMembers/useMembers';
-import { useUnits } from '../../../hooks/useUnits/useUnits';
 
 import { AddUnitForm, AddUnitProps } from './AddUnit.types';
 import { useStyles } from './AddUnit.styles';
@@ -22,7 +21,6 @@ export const AddUnit: React.FC<AddUnitProps> = ({}) => {
   const theme = useTheme();
   const classes = useStyles(theme);
   const { fetchAll: fetchAllMembers } = useMembers();
-  const { fetchAll: fetchAllUnits } = useUnits();
 
   const { control, handleSubmit } = useForm<AddUnitForm>({
     defaultValues: addUnitFormDefaultValues,
@@ -33,7 +31,6 @@ export const AddUnit: React.FC<AddUnitProps> = ({}) => {
     console.log({ data });
 
     await fetchAllMembers();
-    await fetchAllUnits();
   };
 
   return (

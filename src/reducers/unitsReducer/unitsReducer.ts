@@ -3,11 +3,15 @@ import { createSlice } from '@reduxjs/toolkit';
 import { Unit } from '../../hooks/useUnits/useUnits.types';
 
 interface UnitsState {
-  value: Unit[];
+  units: Unit[];
+  isFetching: boolean;
+  isFetched: boolean;
 }
 
 const initialState: UnitsState = {
-  value: [],
+  units: [],
+  isFetching: false,
+  isFetched: false,
 };
 
 const unitsSlice = createSlice({
@@ -15,11 +19,17 @@ const unitsSlice = createSlice({
   initialState,
   reducers: {
     setUnits: (state, action) => {
-      state.value = action.payload;
+      state.units = action.payload;
+    },
+    setUnitsFetching: (state, action) => {
+      state.isFetching = action.payload;
+    },
+    setUnitsFetched: (state, action) => {
+      state.isFetched = action.payload;
     },
   },
 });
 
-export const { setUnits } = unitsSlice.actions;
+export const { setUnits, setUnitsFetching, setUnitsFetched } = unitsSlice.actions;
 
 export default unitsSlice.reducer;
