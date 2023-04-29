@@ -3,11 +3,15 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Member } from '../../hooks/useMembers/useMembers.types';
 
 interface MembersState {
-  value: Member[];
+  members: Member[];
+  isFetching: boolean;
+  isFetched: boolean;
 }
 
 const initialState: MembersState = {
-  value: [],
+  members: [],
+  isFetching: false,
+  isFetched: false,
 };
 
 const membersSlice = createSlice({
@@ -15,22 +19,17 @@ const membersSlice = createSlice({
   initialState,
   reducers: {
     setMembers: (state, action: PayloadAction<Member[]>) => {
-      state.value = action.payload;
+      state.members = action.payload;
     },
-    /*
-    increment: (state) => {
-      state.value += 1;
+    setMembersFetching: (state, action: PayloadAction<boolean>) => {
+      state.isFetching = action.payload;
     },
-    decrement: (state) => {
-      state.value -= 1;
+    setMembersFetched: (state, action: PayloadAction<boolean>) => {
+      state.isFetched = action.payload;
     },
-    incrementByAmount: (state, action: PayloadAction<number>) => {
-      state.value += action.payload;
-    },
-*/
   },
 });
 
-export const { setMembers } = membersSlice.actions;
+export const { setMembers, setMembersFetching, setMembersFetched } = membersSlice.actions;
 
 export default membersSlice.reducer;
