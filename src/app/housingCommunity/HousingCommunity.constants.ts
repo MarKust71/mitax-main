@@ -1,3 +1,7 @@
+import { MainRoutes } from '../../routing/MainRouter.constants';
+
+import { NavItemRoute } from './HousingCommunity.types';
+
 export const memberData = {
   firstName: 'Katarzyna',
   lastName: 'Ryszkiewicz',
@@ -24,7 +28,24 @@ export const unitData = {
   isCommercial: false,
 };
 
-export const navItems = ['Start', 'Operacje', 'Administracja'];
+export const navItems: NavItemRoute[] = [
+  { label: 'Start', route: MainRoutes.HOUSING_COMMUNITY },
+  {
+    label: 'Operacje',
+    route: MainRoutes.HOUSING_COMMUNITY,
+  },
+  { label: 'Administracja' },
+];
+
+export const navSubItems: { [key: string]: NavItemRoute[] } = {
+  Administracja: [
+    {
+      label: 'Właściciele',
+      route: MainRoutes.HC_MEMBERS,
+    },
+    { label: 'Lokale', route: MainRoutes.HOUSING_COMMUNITY },
+  ],
+};
 
 export const drawerWidth = 240;
 

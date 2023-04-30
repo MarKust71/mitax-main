@@ -10,6 +10,7 @@ import {
   useTheme,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import { useNavigate } from 'react-router-dom';
 
 import { HousingCommunityProps } from './HousingCommunity.types';
 import { useStyles } from './HousingCommunity.styles';
@@ -19,6 +20,7 @@ import { HousingCommunityDrawer } from './housingCommunityDrawer/HousingCommunit
 export const HousingCommunity: React.FC<HousingCommunityProps> = ({ children }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
+  const navigate = useNavigate();
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -50,8 +52,12 @@ export const HousingCommunity: React.FC<HousingCommunityProps> = ({ children }) 
 
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
             {navItems.map((item) => (
-              <Button key={item} sx={{ color: '#fff' }}>
-                {item}
+              <Button
+                key={item.label}
+                sx={{ color: '#fff' }}
+                onClick={item.route ? () => navigate(item.route as string) : undefined}
+              >
+                {item.label}
               </Button>
             ))}
           </Box>
