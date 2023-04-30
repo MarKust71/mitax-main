@@ -10,10 +10,11 @@ import {
 } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
-import { MobileDatePicker } from '@mui/x-date-pickers';
+// import { MobileDatePicker } from '@mui/x-date-pickers';
 
 import { useMembers } from '../../../hooks/useMembers/useMembers';
-import { useUnits } from '../../../hooks/useUnits/useUnits';
+import { CreateMemberDTO } from '../../../hooks/useMembers/useMembers.types';
+import { HousingCommunity } from '../HousingCommunity';
 
 import { useStyles } from './AddMember.styles';
 import { AddMemberForm, AddMemberProps } from './AddMember.types';
@@ -22,25 +23,37 @@ import { addMemberFormDefaultValues } from './AddMember.constants';
 export const AddMember: React.FC<AddMemberProps> = ({}) => {
   const theme = useTheme();
   const classes = useStyles(theme);
-  const { fetchAll: fetchAllMembers } = useMembers();
-  const { fetchAll: fetchAllUnits } = useUnits();
+  const { addMember } = useMembers();
 
-  const { control, handleSubmit } = useForm<AddMemberForm>({
+  const { control, handleSubmit, setValue } = useForm<AddMemberForm>({
     defaultValues: addMemberFormDefaultValues,
   });
 
   const onSubmit = async (data: AddMemberForm) => {
     // TODO: remove!
-    console.log({ data });
+    console.log('onSubmit:', { data });
 
-    await fetchAllMembers();
-    await fetchAllUnits();
+    const addMemberData: CreateMemberDTO = {
+      address: data.address,
+      email: data.email,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      phone: data.phone,
+    };
+
+    // TODO: remove!
+    console.log('onSubmit:', { addMemberData });
+
+    const result = await addMember(addMemberData);
+
+    // TODO: remove!
+    console.log('onSubmit:', { result });
   };
 
   return (
-    <Box>
+    <HousingCommunity>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Typography variant="h6">Dodaj nowego właściciela</Typography>
+        <Typography variant="h6">Nowy właściciel</Typography>
 
         <Controller
           control={control}
@@ -89,19 +102,35 @@ export const AddMember: React.FC<AddMemberProps> = ({}) => {
           )}
         />
 
+        {/*
         <Box mt={2} mb={2}>
           <Typography>Okres własności:</Typography>
           <Box sx={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
             <Box>
               <Typography>od dnia:</Typography>
+
               <MobileDatePicker />
             </Box>
+
             <Box>
               <Typography>do dnia:</Typography>
-              <MobileDatePicker />
+
+              <Controller
+                control={control}
+                name="memberTo"
+                render={({ field: { name, ...field } }) => (
+                  <MobileDatePicker
+                    {...field}
+                    onChange={(data) =>
+                      setValue(name, data, { shouldDirty: true, shouldTouch: true })
+                    }
+                  />
+                )}
+              />
             </Box>
           </Box>
         </Box>
+*/}
 
         <FormControlLabel
           control={
@@ -122,6 +151,6 @@ export const AddMember: React.FC<AddMemberProps> = ({}) => {
       </form>
 
       <DevTool control={control} />
-    </Box>
+    </HousingCommunity>
   );
 };

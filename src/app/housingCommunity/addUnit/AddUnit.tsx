@@ -11,8 +11,6 @@ import {
 import { Controller, useForm } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
 
-import { useMembers } from '../../../hooks/useMembers/useMembers';
-
 import { AddUnitForm, AddUnitProps } from './AddUnit.types';
 import { useStyles } from './AddUnit.styles';
 import { addUnitFormDefaultValues } from './AddUnit.constants';
@@ -20,7 +18,6 @@ import { addUnitFormDefaultValues } from './AddUnit.constants';
 export const AddUnit: React.FC<AddUnitProps> = ({}) => {
   const theme = useTheme();
   const classes = useStyles(theme);
-  const { fetchAll: fetchAllMembers } = useMembers();
 
   const { control, handleSubmit } = useForm<AddUnitForm>({
     defaultValues: addUnitFormDefaultValues,
@@ -28,9 +25,7 @@ export const AddUnit: React.FC<AddUnitProps> = ({}) => {
 
   const onSubmit = async (data: AddUnitForm) => {
     // TODO: remove!
-    console.log({ data });
-
-    await fetchAllMembers();
+    console.log('AddUnit - onSubmit:', { data });
   };
 
   return (

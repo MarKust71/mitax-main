@@ -44,7 +44,12 @@ export const useUnits = () => {
   });
 
   const addUnit = async (data: CreateUnitDTO) => {
-    await mutate({ db, data });
+    const result = await mutate({ db, data });
+
+    // TODO: remove!
+    console.log('addUnit:', { result });
+
+    return result;
   };
 
   return { addUnit, error, fetchAll, status, units };
