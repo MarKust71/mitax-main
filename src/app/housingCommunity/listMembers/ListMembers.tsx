@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Divider, Fab, List, ListItem, ListItemText, Typography, useTheme } from '@mui/material';
+import { Fab, List, ListItem, ListItemText, Typography, useTheme } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
 
@@ -44,11 +44,9 @@ export const ListMembers: React.FC<ListMembersProps> = ({}) => {
       >
         {members.map((member) => (
           <>
-            <ListItem sx={{ paddingLeft: 0 }} key={member.memberId}>
+            <ListItem sx={{ paddingLeft: 0 }} divider key={member.memberId}>
               <ListItemText>{`${member.lastName}, ${member.firstName}`}</ListItemText>
             </ListItem>
-
-            <Divider />
           </>
         ))}
       </List>
