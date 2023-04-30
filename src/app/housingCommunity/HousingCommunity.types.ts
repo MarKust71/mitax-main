@@ -1,1 +1,3 @@
-export type HousingCommunityProps = Record<string, never>;
+import { PropsWithChildren } from 'react';
+
+export type HousingCommunityProps = PropsWithChildren;

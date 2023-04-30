@@ -6,8 +6,10 @@ export const createMemberMutation = async ({ db, data }: CreateMemberMutation) =
   try {
     const docRef = await addDoc(collection(db, 'members'), data);
 
-    console.log('Document written with ID: ', docRef.id);
+    return docRef.id;
   } catch (error) {
     console.error('Error adding document: ', { error });
+
+    return error;
   }
 };
