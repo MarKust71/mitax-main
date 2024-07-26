@@ -1,4 +1,4 @@
-import { XmlObject } from '../../../app/jpk/Jpk';
+import { XmlObject } from '../../../app/jpk/Jpk.types';
 
 export type VatPurchaseRegisterProps = {
   registerRows: XmlObject[] | null;
