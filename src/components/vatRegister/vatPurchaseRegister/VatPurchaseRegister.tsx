@@ -11,19 +11,27 @@ export const VatPurchaseRegister: React.FC<VatPurchaseRegisterProps> = ({ regist
 
   const rows: VatPurchaseRegisterRow[] | undefined = registerRows?.map((row) => {
     const rows = {
-      purchaseDate: row['tns:DataZakupu'] as { '#text': string },
-      invoiceNumber: row['tns:DowodZakupu'] as { '#text': string },
-      netAmount: row['tns:K_42'] as { '#text': string },
-      vatAmount: row['tns:K_43'] as { '#text': string },
-      rowNumber: row['tns:LpZakupu'] as { '#text': string },
-      supplierName: row['tns:NazwaDostawcy'] as { '#text': string },
-      supplierVatId: row['tns:NrDostawcy'] as { '#text': string },
+      purchaseDate: (row['tns:DataZakupu'] || row['DataZakupu']) as { '#text': string },
+      receiptDate: (row['tns:DataWplywu'] || row['DataWplywu'] || { '#text': '' }) as {
+        '#text': string;
+      },
+      invoiceNumber: (row['tns:DowodZakupu'] || row['DowodZakupu']) as { '#text': string },
+      netAmount: (row['tns:K_42'] || row['K_42']) as { '#text': string },
+      vatAmount: (row['tns:K_43'] || row['K_43']) as { '#text': string },
+      rowNumber: (row['tns:LpZakupu'] || row['LpZakupu']) as { '#text': string },
+      supplierName: (row['tns:NazwaDostawcy'] || row['NazwaDostawcy']) as { '#text': string },
+      supplierVatId: (row['tns:NrDostawcy'] || row['NrDostawcy']) as { '#text': string },
+      country: (row['tns:KodKrajuNadaniaTIN'] || row['KodKrajuNadaniaTIN'] || { '#text': '' }) as {
+        '#text': string;
+      },
     };
 
     return {
       id: `${rows.supplierVatId['#text']}-${rows.rowNumber['#text']}`,
       rowNumber: Number(rows.rowNumber['#text']),
       purchaseDate: rows.purchaseDate['#text'],
+      receiptDate: rows.receiptDate['#text'],
+      country: rows.country['#text'],
       supplierVatId: rows.supplierVatId['#text'],
       supplierName: rows.supplierName['#text'],
       invoiceNumber: rows.invoiceNumber['#text'],
@@ -37,6 +45,14 @@ export const VatPurchaseRegister: React.FC<VatPurchaseRegisterProps> = ({ regist
     {
       field: 'purchaseDate',
       headerName: 'Data zakupu',
+    },
+    {
+      field: 'receiptDate',
+      headerName: 'Data wpływu',
+    },
+    {
+      field: 'country',
+      headerName: 'Kraj',
     },
     {
       field: 'supplierVatId',
