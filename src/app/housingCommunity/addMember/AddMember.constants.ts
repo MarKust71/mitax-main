@@ -6,8 +6,5 @@ export const addMemberFormDefaultValues: AddMemberForm = {
   firstName: '',
   isAddress: false,
   lastName: '',
-  memberFrom: '',
-  memberTo: null,
   phone: '',
-  share: 1,
 };

@@ -19,7 +19,7 @@ export const ListMembers: React.FC<ListMembersProps> = ({}) => {
 
   const { members, isFetched, isFetching } = useAppSelector((state) => state.members);
 
-  const handleAddMemeberButtonClick = () => {
+  const handleAddMemberButtonClick = () => {
     navigate(MainRoutes.HC_MEMBER_NEW);
   };
 
@@ -59,7 +59,7 @@ export const ListMembers: React.FC<ListMembersProps> = ({}) => {
           right: 16,
         }}
         aria-label="add"
-        onClick={handleAddMemeberButtonClick}
+        onClick={handleAddMemberButtonClick}
       >
         <AddIcon />
       </Fab>

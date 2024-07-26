@@ -10,7 +10,6 @@ import {
 } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
-// import { MobileDatePicker } from '@mui/x-date-pickers';
 
 import { useMembers } from '../../../hooks/useMembers/useMembers';
 import { CreateMemberDTO } from '../../../hooks/useMembers/useMembers.types';
@@ -86,51 +85,6 @@ export const AddMember: React.FC<AddMemberProps> = ({}) => {
             <TextField {...field} fullWidth label="Email" margin="normal" variant="outlined" />
           )}
         />
-
-        <Controller
-          control={control}
-          name={'share'}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              fullWidth
-              label="Udział we własności"
-              margin="normal"
-              type={'number'}
-              variant="outlined"
-            />
-          )}
-        />
-
-        {/*
-        <Box mt={2} mb={2}>
-          <Typography>Okres własności:</Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
-            <Box>
-              <Typography>od dnia:</Typography>
-
-              <MobileDatePicker />
-            </Box>
-
-            <Box>
-              <Typography>do dnia:</Typography>
-
-              <Controller
-                control={control}
-                name="memberTo"
-                render={({ field: { name, ...field } }) => (
-                  <MobileDatePicker
-                    {...field}
-                    onChange={(data) =>
-                      setValue(name, data, { shouldDirty: true, shouldTouch: true })
-                    }
-                  />
-                )}
-              />
-            </Box>
-          </Box>
-        </Box>
-*/}
 
         <FormControlLabel
           control={

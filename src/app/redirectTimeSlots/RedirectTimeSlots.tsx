@@ -5,7 +5,7 @@ import { RedirectTimeSlotsProps } from './RedirectTimeSlots.types';
 
 export const RedirectTimeSlots: React.FC<RedirectTimeSlotsProps> = () => {
   useEffect(() => {
-    window.location.href = 'https://calendar.app.google/VMWMxmTkqL4GhxKdA';
+    window.location.href = 'https://calendar.app.google/s5yvfuHrX3wmULvi9';
   }, []);
 
   return (
