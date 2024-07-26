@@ -29,12 +29,17 @@ export const unitData = {
 };
 
 export const navItems: NavItemRoute[] = [
-  { label: 'Start', route: MainRoutes.HOUSING_COMMUNITY },
+  {
+    label: 'Start',
+    route: MainRoutes.HOUSING_COMMUNITY,
+  },
   {
     label: 'Operacje',
     route: MainRoutes.HOUSING_COMMUNITY,
   },
-  { label: 'Administracja' },
+  {
+    label: 'Administracja',
+  },
 ];
 
 export const navSubItems: { [key: string]: NavItemRoute[] } = {
@@ -43,7 +48,10 @@ export const navSubItems: { [key: string]: NavItemRoute[] } = {
       label: 'Właściciele',
       route: MainRoutes.HC_MEMBERS,
     },
-    { label: 'Lokale', route: MainRoutes.HOUSING_COMMUNITY },
+    {
+      label: 'Lokale',
+      route: MainRoutes.HC_UNITS,
+    },
   ],
 };
 

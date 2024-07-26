@@ -8,6 +8,10 @@ import { RedirectTimeSlots } from '../app/redirectTimeSlots/RedirectTimeSlots';
 import { HousingCommunity } from '../app/housingCommunity/HousingCommunity';
 import { ListMembers } from '../app/housingCommunity/listMembers/ListMembers';
 import { AddMember } from '../app/housingCommunity/addMember/AddMember';
+import { ListUnits } from '../app/housingCommunity/listUnits/ListUnits';
+import { AddUnit } from '../app/housingCommunity/addUnit/AddUnit';
+import { TenDaysProgramme } from '../app/dMb/tenDaysProgramme/TenDaysProgramme';
+import { Jpk } from '../app/jpk/Jpk';
 
 import { Error404 } from './Error404';
 import { MainRoutes } from './MainRouter.constants';
@@ -19,10 +23,14 @@ export const MainRouter = () => {
         <Route path={MainRoutes.BLOG} element={<Blog />} />
         <Route path={MainRoutes.CONTACT} element={<Contact />} />
         <Route path={MainRoutes.DATES} element={<RedirectTimeSlots />} />
+        <Route path={MainRoutes.DMB_10DAYSPROGRAMME} element={<TenDaysProgramme />} />
         <Route path={MainRoutes.HC_MEMBER_NEW} element={<AddMember />} />
         <Route path={MainRoutes.HC_MEMBERS} element={<ListMembers />} />
+        <Route path={MainRoutes.HC_UNIT_NEW} element={<AddUnit />} />
+        <Route path={MainRoutes.HC_UNITS} element={<ListUnits />} />
         <Route path={MainRoutes.HOUSING_COMMUNITY} element={<HousingCommunity />} />
         <Route path={MainRoutes.HOME} element={<Main />} />
+        <Route path={MainRoutes.JPK} element={<Jpk />} />
         <Route path="*" element={<Error404 />} />
       </Routes>
     </BrowserRouter>

@@ -46,8 +46,15 @@ const reactComponentGenerator = () => ({
       type: 'list',
       name: 'baseDir',
       message: 'base directory',
-      choices: ['ui', 'app'],
-      default: 1,
+      choices: ['app', 'ui', 'components'],
+      default: 0,
+    },
+    {
+      type: 'directory',
+      name: 'directory',
+      message: 'select directory',
+      basePath: './src/app',
+      when: (answers) => answers.baseDir === 'app',
     },
     {
       type: 'directory',
@@ -60,8 +67,8 @@ const reactComponentGenerator = () => ({
       type: 'directory',
       name: 'directory',
       message: 'select directory',
-      basePath: './src/app',
-      when: (answers) => answers.baseDir === 'app',
+      basePath: './src/components',
+      when: (answers) => answers.baseDir === 'components',
     },
     {
       type: 'input',
