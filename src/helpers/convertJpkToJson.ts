@@ -26,8 +26,9 @@ export async function convertJpkToJson(xmlFileElementId: string): Promise<XmlObj
     const json = xmlToJson(xmlDoc.documentElement);
 
     if (json !== null && typeof json === 'object') {
-      const register = json[EWIDENCJA] as XmlObject;
-      return register[ZAKUP_WIERSZ] as XmlObject[];
+      const register = (json[EWIDENCJA] || json[EWIDENCJA.replaceAll('tns:', '')]) as XmlObject;
+      return (register[ZAKUP_WIERSZ] ||
+        register[ZAKUP_WIERSZ.replaceAll('tns:', '')]) as XmlObject[];
     }
 
     return null;
