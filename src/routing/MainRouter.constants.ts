@@ -10,5 +10,6 @@ export const MainRoutes = {
   HOME: '/',
   HOUSING_COMMUNITY: '/wspolnota',
   JPK: '/jpk',
+  KOMORNIK_PLAN_PODZIALU: '/komornik/plan-podzialu-wykonanie',
   TAKAMOL: '/takamol',
 };
