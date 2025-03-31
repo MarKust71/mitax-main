@@ -1,25 +1,13 @@
 import React, { useState } from 'react';
-import {
-  AppBar,
-  Box,
-  Button,
-  Container,
-  IconButton,
-  Toolbar,
-  Typography,
-  useTheme,
-} from '@mui/material';
+import { AppBar, Box, Button, Container, IconButton, Toolbar, Typography } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate } from 'react-router-dom';
 
 import { HousingCommunityProps } from './HousingCommunity.types';
-import { useStyles } from './HousingCommunity.styles';
 import { appTitle, navItems } from './HousingCommunity.constants';
 import { HousingCommunityDrawer } from './housingCommunityDrawer/HousingCommunityDrawer';
 
 export const HousingCommunity: React.FC<HousingCommunityProps> = ({ children }) => {
-  const theme = useTheme();
-  const classes = useStyles(theme);
   const navigate = useNavigate();
 
   const [mobileOpen, setMobileOpen] = useState(false);

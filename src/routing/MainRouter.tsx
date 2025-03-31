@@ -14,6 +14,7 @@ import { TenDaysProgramme } from '../app/dMb/tenDaysProgramme/TenDaysProgramme';
 import { Jpk } from '../app/jpk/Jpk';
 // eslint-disable-next-line max-len
 import { RedirectKomornikPlanPodzialuWykonanie } from '../app/redirectKomornikPlanPodzialuWykonanie/RedirectKomornikPlanPodzialuWykonanie';
+import { PackageTracker } from '../app/packageTracker/PackageTracker';
 
 import { Error404 } from './Error404';
 import { MainRoutes } from './MainRouter.constants';
@@ -33,6 +34,7 @@ export const MainRouter = () => {
         <Route path={MainRoutes.HOME} element={<Main />} />
         <Route path={MainRoutes.HOUSING_COMMUNITY} element={<HousingCommunity />} />
         <Route path={MainRoutes.JPK} element={<Jpk />} />
+        <Route path={MainRoutes.PACKAGE_TRACKER} element={<PackageTracker />} />
         <Route
           path={MainRoutes.KOMORNIK_PLAN_PODZIALU}
           element={<RedirectKomornikPlanPodzialuWykonanie />}

@@ -1,24 +1,31 @@
 import React, { useState } from 'react';
-import { useTheme } from '@mui/material';
+import * as XLSX from 'xlsx';
 
 import { VatPurchaseRegister } from '../../components/vatRegister/vatPurchaseRegister/VatPurchaseRegister';
-import { convertJpkToJson } from '../../helpers/convertJpkToJson';
+import { convertJpkToXml } from '../../helpers/convertJpkToXml';
+import { xmlToRows } from '../../helpers/xmlToRows';
 
 import { JpkProps, XmlObject } from './Jpk.types';
-import { useStyles } from './Jpk.styles';
 
 export const Jpk: React.FC<JpkProps> = ({}) => {
-  const theme = useTheme();
-  const classes = useStyles(theme);
-
   const [registerRows, setRegisterRows] = useState<XmlObject[] | null>([]);
 
   const XML_FILE_ELEMENT_ID = 'xmlFile';
 
-  const handleClick = async () => {
-    const rows = await convertJpkToJson(XML_FILE_ELEMENT_ID);
+  const handleClickConvert = async () => {
+    const rows = await convertJpkToXml(XML_FILE_ELEMENT_ID);
 
     setRegisterRows(rows);
+  };
+
+  const handleClickExport = () => {
+    const fileBaseName = 'mic_jpk_';
+    const data = xmlToRows(registerRows);
+    const worksheet = XLSX.utils.json_to_sheet(data as unknown[]);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'miesiac');
+
+    XLSX.writeFile(workbook, `${fileBaseName}.xlsx`);
   };
 
   return (
@@ -27,7 +34,10 @@ export const Jpk: React.FC<JpkProps> = ({}) => {
 
       <div>
         <input type="file" id={XML_FILE_ELEMENT_ID} accept=".xml" />
-        <button onClick={handleClick}>Convert</button>
+        <button onClick={handleClickConvert}>Convert</button>
+        <button disabled={!registerRows} onClick={handleClickExport}>
+          Export XLSX
+        </button>
       </div>
 
       <VatPurchaseRegister registerRows={registerRows} />

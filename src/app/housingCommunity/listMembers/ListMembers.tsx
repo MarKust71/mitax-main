@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Fab, List, ListItem, ListItemText, Typography, useTheme } from '@mui/material';
+import { Fab, List, ListItem, ListItemText, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,11 +9,8 @@ import { useMembers } from '../../../hooks/useMembers/useMembers';
 import { MainRoutes } from '../../../routing/MainRouter.constants';
 
 import { ListMembersProps } from './ListMembers.types';
-import { useStyles } from './ListMembers.styles';
 
 export const ListMembers: React.FC<ListMembersProps> = ({}) => {
-  const theme = useTheme();
-  const classes = useStyles(theme);
   const { fetchAll } = useMembers();
   const navigate = useNavigate();
 

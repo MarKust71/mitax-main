@@ -8,7 +8,6 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
-  useTheme,
 } from '@mui/material';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -16,13 +15,10 @@ import { useNavigate } from 'react-router-dom';
 import { appTitle, navItems, navSubItems } from '../../HousingCommunity.constants';
 
 import { HousingCommunityDrawerContentProps } from './HousingCommunityDrawerContent.types';
-import { useStyles } from './HousingCommunityDrawerContent.styles';
 
 export const HousingCommunityDrawerContent: React.FC<HousingCommunityDrawerContentProps> = ({
   onClick,
 }) => {
-  const theme = useTheme();
-  const classes = useStyles(theme);
   const navigate = useNavigate();
 
   const [isSubItemOpen, setIsSubItemOpen] = React.useState<{ [key: string]: boolean }>({});
