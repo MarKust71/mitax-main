@@ -13,14 +13,25 @@ export const PackageTracker: React.FC = () => {
     if (!videoRef.current) return;
 
     codeReader
-      .decodeFromVideoDevice(undefined, videoRef.current, (result, error, controls) => {
-        if (error) return; // brak kodu – normalne
-        if (result) {
-          setTrackingNumber(result.getText());
-          controls.stop(); // zatrzymujemy kamerę
-        }
-        setControls(controls);
-      })
+      .decodeFromConstraints(
+        {
+          video: {
+            facingMode: 'environment',
+            // focusMode: 'continuous',
+            width: { ideal: 1280 },
+            height: { ideal: 960 },
+          },
+        },
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        videoRef.current!,
+        (result, error, controls) => {
+          if (result) {
+            setTrackingNumber(result.getText());
+            controls.stop(); // zatrzymujemy kamerę
+          }
+          setControls(controls);
+        },
+      )
       .catch((err) => {
         console.error(err);
         setError('Nie udało się uzyskać dostępu do kamery.');
@@ -50,7 +61,7 @@ export const PackageTracker: React.FC = () => {
 
       {!trackingNumber && (
         <div
-          style={{ position: 'relative', aspectRatio: '16/9', borderRadius: 8, overflow: 'hidden' }}
+          style={{ position: 'relative', aspectRatio: '4/3', borderRadius: 8, overflow: 'hidden' }}
         >
           <video
             ref={videoRef}
