@@ -19,7 +19,6 @@ export const PackageTracker: React.FC = () => {
             facingMode: 'environment',
             width: { ideal: 1280 },
             height: { ideal: 960 },
-            ...{ focusMode: 'continuous' },
           },
         },
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -65,7 +64,13 @@ export const PackageTracker: React.FC = () => {
         >
           <video
             ref={videoRef}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              transform: 'scale(2)',
+              transformOrigin: 'center center',
+            }}
             muted
             autoPlay
             playsInline
