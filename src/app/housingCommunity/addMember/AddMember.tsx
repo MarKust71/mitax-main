@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  Box,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  TextField,
-  Typography,
-  useTheme,
-} from '@mui/material';
+import { Box, Button, Checkbox, FormControlLabel, TextField, Typography } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
 
@@ -15,16 +7,13 @@ import { useMembers } from '../../../hooks/useMembers/useMembers';
 import { CreateMemberDTO } from '../../../hooks/useMembers/useMembers.types';
 import { HousingCommunity } from '../HousingCommunity';
 
-import { useStyles } from './AddMember.styles';
 import { AddMemberForm, AddMemberProps } from './AddMember.types';
 import { addMemberFormDefaultValues } from './AddMember.constants';
 
 export const AddMember: React.FC<AddMemberProps> = ({}) => {
-  const theme = useTheme();
-  const classes = useStyles(theme);
   const { addMember } = useMembers();
 
-  const { control, handleSubmit, setValue } = useForm<AddMemberForm>({
+  const { control, handleSubmit } = useForm<AddMemberForm>({
     defaultValues: addMemberFormDefaultValues,
   });
 

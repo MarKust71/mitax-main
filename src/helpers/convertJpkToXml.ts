@@ -3,7 +3,7 @@ import { XmlObject } from '../app/jpk/Jpk.types';
 import { readFileAsText } from './readFileAsText';
 import { xmlToJson } from './xmlToJson';
 
-export async function convertJpkToJson(xmlFileElementId: string): Promise<XmlObject[] | null> {
+export async function convertJpkToXml(xmlFileElementId: string): Promise<XmlObject[] | null> {
   const fileInput = document.getElementById(xmlFileElementId) as HTMLInputElement;
 
   const EWIDENCJA = 'tns:Ewidencja';

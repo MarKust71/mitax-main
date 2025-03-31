@@ -9,4 +9,4 @@ export const Takamol: React.FC<TakamolProps> = ({}) => {
   const classes = useStyles(theme);
 
   return <>Takamol</>;
-  };
+};
