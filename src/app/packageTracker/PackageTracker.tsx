@@ -6,6 +6,7 @@ export const PackageTracker: React.FC = () => {
   const [trackingNumber, setTrackingNumber] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [controls, setControls] = useState<IScannerControls | null>(null);
+  const [zoom, setZoom] = useState<number>(1);
 
   const startScanning = () => {
     const codeReader = new BrowserMultiFormatReader();
@@ -68,13 +69,28 @@ export const PackageTracker: React.FC = () => {
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              transform: 'scale(2)',
+              transform: `scale(${zoom})`,
               transformOrigin: 'center center',
             }}
             muted
             autoPlay
             playsInline
           />
+          <button
+            onClick={() => setZoom((prev) => (prev === 3 ? 1 : prev + 1))}
+            style={{
+              position: 'absolute',
+              top: 10,
+              right: 10,
+              backgroundColor: '#fff',
+              border: '1px solid #ccc',
+              borderRadius: 4,
+              padding: '4px 8px',
+            }}
+          >
+            {`Zoom x${zoom}`}
+          </button>
+
           {/* Celownik */}
           <div
             style={{
