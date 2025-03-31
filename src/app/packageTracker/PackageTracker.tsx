@@ -17,9 +17,9 @@ export const PackageTracker: React.FC = () => {
         {
           video: {
             facingMode: 'environment',
-            // focusMode: 'continuous',
             width: { ideal: 1280 },
             height: { ideal: 960 },
+            ...{ focusMode: 'continuous' },
           },
         },
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
