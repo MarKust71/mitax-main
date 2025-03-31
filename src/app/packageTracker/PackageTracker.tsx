@@ -18,8 +18,8 @@ export const PackageTracker: React.FC = () => {
         {
           video: {
             facingMode: 'environment',
-            width: { ideal: 1280 },
-            height: { ideal: 960 },
+            width: { ideal: 7680 },
+            height: { ideal: 4320 },
           },
         },
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
