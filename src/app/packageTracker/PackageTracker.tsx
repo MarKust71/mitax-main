@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { BrowserMultiFormatReader, IScannerControls } from '@zxing/browser';
 
 export const PackageTracker: React.FC = () => {
@@ -8,37 +7,42 @@ export const PackageTracker: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [controls, setControls] = useState<IScannerControls | null>(null);
 
-  useEffect(() => {
+  const startScanning = () => {
     const codeReader = new BrowserMultiFormatReader();
 
     if (!videoRef.current) return;
 
     codeReader
-      .decodeFromVideoDevice(undefined, videoRef.current, (result, err, controls) => {
-        setControls(controls);
-
-        if (err) {
-          // Kod może nie być jeszcze widoczny – to normalne, nie pokazujemy błędu
-        }
+      .decodeFromVideoDevice(undefined, videoRef.current, (result, error, controls) => {
+        if (error) return; // brak kodu – normalne
         if (result) {
           setTrackingNumber(result.getText());
-          controls.stop(); // zatrzymujemy skanowanie
+          controls.stop(); // zatrzymujemy kamerę
         }
+        setControls(controls);
       })
       .catch((err) => {
         console.error(err);
         setError('Nie udało się uzyskać dostępu do kamery.');
       });
+  };
+
+  useEffect(() => {
+    if (!trackingNumber) {
+      startScanning();
+    }
 
     return () => {
-      controls?.stop(); // wyczyść po odmontowaniu
+      controls?.stop();
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trackingNumber]);
 
-  const url = useMemo(
-    () => `https://emonitoring.poczta-polska.pl/?numer=${trackingNumber}`,
-    [trackingNumber],
-  );
+  const handleRescan = () => {
+    setTrackingNumber(null);
+    setError(null);
+    controls?.stop();
+  };
 
   return (
     <div style={{ maxWidth: 500, margin: '0 auto', padding: 16 }}>
@@ -55,7 +59,7 @@ export const PackageTracker: React.FC = () => {
             autoPlay
             playsInline
           />
-          {/* Zielona nakładka – celownik */}
+          {/* Celownik */}
           <div
             style={{
               position: 'absolute',
@@ -73,12 +77,35 @@ export const PackageTracker: React.FC = () => {
       )}
 
       {trackingNumber && (
-        <p style={{ marginTop: '1rem', fontSize: '1.1rem' }}>
-          Numer przesyłki:{' '}
-          <a href={url ?? '#'} target="_blank" rel="noopener noreferrer">
-            {trackingNumber}
-          </a>
-        </p>
+        <div>
+          <p style={{ marginTop: '1rem', fontSize: '1.1rem' }}>
+            Numer przesyłki: <strong>{trackingNumber}</strong>
+          </p>
+          <button
+            onClick={handleRescan}
+            style={{
+              marginTop: 12,
+              padding: '6px 12px',
+              backgroundColor: '#e0e0e0',
+              border: '1px solid #ccc',
+              borderRadius: 4,
+              cursor: 'pointer',
+            }}
+          >
+            Skanuj ponownie
+          </button>
+
+          <div style={{ marginTop: 20 }}>
+            <h2 style={{ fontSize: '1rem', marginBottom: 8 }}>Historia przesyłki:</h2>
+            <iframe
+              title="Tracking"
+              src={`https://emonitoring.poczta-polska.pl/?numer=${trackingNumber}`}
+              width="100%"
+              height="400"
+              style={{ border: '1px solid #ccc', borderRadius: 4 }}
+            />
+          </div>
+        </div>
       )}
 
       {error && <p style={{ color: 'red', marginTop: '1rem' }}>{error}</p>}
