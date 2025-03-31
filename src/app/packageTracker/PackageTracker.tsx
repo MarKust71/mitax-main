@@ -17,7 +17,6 @@ export const PackageTracker: React.FC = () => {
         {
           video: {
             facingMode: 'environment',
-            // focusMode: 'continuous',
             width: { ideal: 1280 },
             height: { ideal: 960 },
           },
@@ -65,7 +64,13 @@ export const PackageTracker: React.FC = () => {
         >
           <video
             ref={videoRef}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              transform: 'scale(2)',
+              transformOrigin: 'center center',
+            }}
             muted
             autoPlay
             playsInline
