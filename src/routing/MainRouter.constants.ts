@@ -13,4 +13,5 @@ export const MainRoutes = {
   KOMORNIK_PLAN_PODZIALU: '/komornik/plan-podzialu-wykonanie',
   PACKAGE_TRACKER: '/pp',
   TAKAMOL: '/takamol',
+  KUMAMYBIZNES: '/kumamybiznes',
 };
