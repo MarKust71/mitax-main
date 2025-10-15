@@ -15,6 +15,7 @@ import { Jpk } from '../app/jpk/Jpk';
 // eslint-disable-next-line max-len
 import { RedirectKomornikPlanPodzialuWykonanie } from '../app/redirectKomornikPlanPodzialuWykonanie/RedirectKomornikPlanPodzialuWykonanie';
 import { PackageTracker } from '../app/packageTracker/PackageTracker';
+import { RedirectKuMamyBiznes } from '../app/redirectKuMamyBiznes/RedirectKuMamyBiznes';
 
 import { Error404 } from './Error404';
 import { MainRoutes } from './MainRouter.constants';
@@ -39,6 +40,7 @@ export const MainRouter = () => {
           path={MainRoutes.KOMORNIK_PLAN_PODZIALU}
           element={<RedirectKomornikPlanPodzialuWykonanie />}
         />
+        <Route path={MainRoutes.KUMAMYBIZNES} element={<RedirectKuMamyBiznes />} />
         <Route path="*" element={<Error404 />} />
       </Routes>
     </BrowserRouter>
