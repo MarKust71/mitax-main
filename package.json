@@ -22,7 +22,7 @@
     "axios": "^1.8.4",
     "cheerio": "^1.0.0",
     "date-fns": "^2.29.3",
-    "firebase": "^9.20.0",
+    "firebase": "^13.1.0",
     "html-react-parser": "^3.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -33,7 +33,10 @@
     "react-scripts": "^5.0.0",
     "typescript": "^4.2.4",
     "web-vitals": "^2.1.2",
-    "xlsx": "^0.18.5"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  },
+  "resolutions": {
+    "@types/react": "^18.0.17"
   },
   "scripts": {
     "start": "react-scripts start",
