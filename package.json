@@ -3,11 +3,13 @@
   "version": "0.1.2",
   "private": true,
   "dependencies": {
+    "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
     "@mui/icons-material": "^5.2.5",
     "@mui/lab": "^5.0.0-alpha.62",
     "@mui/material": "^5.2.6",
+    "@mui/material-nextjs": "^5",
     "@mui/x-data-grid": "^7.11.1",
     "@mui/x-date-pickers": "^6.2.1",
     "@reduxjs/toolkit": "^1.9.5",
@@ -23,26 +25,25 @@
     "date-fns": "^2.29.3",
     "firebase": "^13.1.0",
     "html-react-parser": "^3.0.1",
+    "next": "^16.4.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-helmet": "^6.1.0",
     "react-hook-form": "^7.43.9",
     "react-redux": "^8.0.5",
-    "react-router-dom": "^6.3.0",
-    "typescript": "^4.2.4",
+    "typescript": "^5",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "resolutions": {
     "@types/react": "^18.0.17"
   },
   "scripts": {
-    "start": "vite",
-    "build": "tsc --noEmit && vite build",
+    "start": "next dev -p 3000",
+    "build": "next build",
     "test": "vitest",
     "plop": "plop",
     "prettier": "prettier -w ./src",
     "eslint": "eslint --fix {**/*,*}.{ts,tsx}",
-    "preview": "vite preview"
+    "serve": "next start -p 3000"
   },
   "browserslist": {
     "production": [
@@ -63,7 +64,6 @@
     "@testing-library/react": "^14.0.0",
     "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "^14.4.3",
-    "@types/react-helmet": "^6.1.5",
     "@types/react-redux": "^7.1.25",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",

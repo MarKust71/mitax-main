@@ -1,7 +1,9 @@
+'use client';
+
 import React, { useEffect } from 'react';
 import { Fab, List, ListItem, ListItemText, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 import { HousingCommunity } from '../HousingCommunity';
 import { useAppSelector } from '../../../hooks/hooks';
@@ -12,12 +14,12 @@ import { ListMembersProps } from './ListMembers.types';
 
 export const ListMembers: React.FC<ListMembersProps> = ({}) => {
   const { fetchAll } = useMembers();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const { members, isFetched, isFetching } = useAppSelector((state) => state.members);
 
   const handleAddMemberButtonClick = () => {
-    navigate(MainRoutes.HC_MEMBER_NEW);
+    router.push(MainRoutes.HC_MEMBER_NEW);
   };
 
   useEffect(() => {

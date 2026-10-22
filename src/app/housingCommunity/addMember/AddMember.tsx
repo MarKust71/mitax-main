@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Box, Button, Checkbox, FormControlLabel, TextField, Typography } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';

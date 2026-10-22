@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
-import { FirebaseContext } from '../../App';
+import { FirebaseContext } from '../../providers/Providers';
 import {
   setMembers,
   setMembersFetched,

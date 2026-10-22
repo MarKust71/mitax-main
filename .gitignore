@@ -105,3 +105,7 @@ dist
 
 /.idea/
 /build/
+
+# next.js
+.next/
+next-env.d.ts

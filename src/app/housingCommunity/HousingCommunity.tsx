@@ -1,14 +1,16 @@
+'use client';
+
 import React, { useState } from 'react';
 import { AppBar, Box, Button, Container, IconButton, Toolbar, Typography } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 import { HousingCommunityProps } from './HousingCommunity.types';
 import { appTitle, navItems } from './HousingCommunity.constants';
 import { HousingCommunityDrawer } from './housingCommunityDrawer/HousingCommunityDrawer';
 
 export const HousingCommunity: React.FC<HousingCommunityProps> = ({ children }) => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -43,7 +45,7 @@ export const HousingCommunity: React.FC<HousingCommunityProps> = ({ children }) 
               <Button
                 key={item.label}
                 sx={{ color: '#fff' }}
-                onClick={item.route ? () => navigate(item.route as string) : undefined}
+                onClick={item.route ? () => router.push(item.route as string) : undefined}
               >
                 {item.label}
               </Button>
