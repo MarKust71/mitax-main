@@ -2,15 +2,14 @@ import React from 'react';
 import { Box, Container, Typography, useTheme } from '@mui/material';
 
 import { TenDaysProgrammeProps } from './TenDaysProgramme.types';
-import { useStyles } from './TenDaysProgramme.styles';
+import { styles } from './TenDaysProgramme.styles';
 import { TdpHeader } from './tdpHeader/TdpHeader';
 
 export const TenDaysProgramme: React.FC<TenDaysProgrammeProps> = ({}) => {
   const theme = useTheme();
-  const classes = useStyles(theme);
 
   return (
-    <Container fixed className={classes.container}>
+    <Container fixed sx={styles.container}>
       <TdpHeader>
         <Typography
           variant={'h1'}
