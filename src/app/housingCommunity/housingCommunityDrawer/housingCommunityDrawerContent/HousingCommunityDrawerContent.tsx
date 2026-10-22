@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect } from 'react';
 import {
   Box,
@@ -10,7 +12,7 @@ import {
   Typography,
 } from '@mui/material';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 import { appTitle, navItems, navSubItems } from '../../HousingCommunity.constants';
 
@@ -19,7 +21,7 @@ import { HousingCommunityDrawerContentProps } from './HousingCommunityDrawerCont
 export const HousingCommunityDrawerContent: React.FC<HousingCommunityDrawerContentProps> = ({
   onClick,
 }) => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const [isSubItemOpen, setIsSubItemOpen] = React.useState<{ [key: string]: boolean }>({});
 
@@ -55,7 +57,7 @@ export const HousingCommunityDrawerContent: React.FC<HousingCommunityDrawerConte
               <ListItem
                 key={item.label}
                 disablePadding
-                onClick={item.route ? () => navigate(item.route as string) : undefined}
+                onClick={item.route ? () => router.push(item.route as string) : undefined}
               >
                 <ListItemButton>
                   <ListItemText primary={item.label} />
@@ -89,7 +91,7 @@ export const HousingCommunityDrawerContent: React.FC<HousingCommunityDrawerConte
                           key={`${subItem.label}${subItem.label}`}
                           disablePadding
                           onClick={
-                            subItem.route ? () => navigate(subItem.route as string) : undefined
+                            subItem.route ? () => router.push(subItem.route as string) : undefined
                           }
                         >
                           <ListItemButton>

@@ -1,8 +1,9 @@
+'use client';
+
 import React, { createContext } from 'react';
-// Import the functions you need from the SDKs you need
 import { ThemeProvider } from '@mui/material';
-import { Helmet } from 'react-helmet';
-import { initializeApp } from 'firebase/app';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
+import { getApp, getApps, initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Provider } from 'react-redux';
@@ -10,14 +11,10 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { pl } from 'date-fns/locale';
 
-import { theme } from './theme/theme';
-import { MainRouter } from './routing/MainRouter';
-import { store } from './store/store';
+import { theme } from '../theme/theme';
+import { store } from '../store/store';
 
 const queryClient = new QueryClient();
-
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -31,33 +28,26 @@ const firebaseConfig = {
   measurementId: 'G-X0Q54QQVYW',
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-// const analytics = getAnalytics(app);
+// Initialize Firebase (reuse the instance on hot reload)
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 // Initialize Cloud Firestore and get a reference to the service
 const db = getFirestore(app);
 
 export const FirebaseContext = createContext({ app, db });
 
-export const App = () => {
+export const Providers: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <>
-      <Helmet>
-        <title>MITAX Consulting sp. z o.o.</title>
-      </Helmet>
-
+    <AppRouterCacheProvider>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={pl}>
         <Provider store={store}>
           <FirebaseContext.Provider value={{ app, db }}>
             <QueryClientProvider client={queryClient}>
-              <ThemeProvider theme={theme}>
-                <MainRouter />
-              </ThemeProvider>
+              <ThemeProvider theme={theme}>{children}</ThemeProvider>
             </QueryClientProvider>
           </FirebaseContext.Provider>
         </Provider>
       </LocalizationProvider>
-    </>
+    </AppRouterCacheProvider>
   );
 };

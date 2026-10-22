@@ -1,7 +1,9 @@
+'use client';
+
 import React from 'react';
 import { Fab, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 import { HousingCommunity } from '../HousingCommunity';
 import { MainRoutes } from '../../../routing/MainRouter.constants';
@@ -9,10 +11,10 @@ import { MainRoutes } from '../../../routing/MainRouter.constants';
 import { ListUnitsProps } from './ListUnits.types';
 
 export const ListUnits: React.FC<ListUnitsProps> = ({}) => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleAddUnitButtonClick = () => {
-    navigate(MainRoutes.HC_UNIT_NEW);
+    router.push(MainRoutes.HC_UNIT_NEW);
   };
 
   return (

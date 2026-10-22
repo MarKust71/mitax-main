@@ -57,6 +57,6 @@ export const navSubItems: { [key: string]: NavItemRoute[] } = {
 
 export const drawerWidth = 240;
 
-export const container = window !== undefined ? () => window.document.body : undefined;
+export const container = typeof window !== 'undefined' ? () => window.document.body : undefined;
 
 export const appTitle = 'Wspólnota 1.0';
