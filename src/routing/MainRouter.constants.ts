@@ -1,6 +1,7 @@
 export const MainRoutes = {
   BLOG: '/blog',
   CONTACT: '/kontakt',
+  DASHBOARD: '/dashboard',
   DATES: '/terminy',
   DMB_10DAYSPROGRAMME: '/10dni',
   HC_MEMBERS: '/wspolnota/wlasciciele',
