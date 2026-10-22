@@ -1,15 +1,12 @@
 import React from 'react';
-import { Box, Link, Typography, useTheme } from '@mui/material';
+import { Box, Link, Typography } from '@mui/material';
 
 import { MainProps } from './Main.types';
-import { useStyles } from './Main.styles';
+import { styles } from './Main.styles';
 
 export const Main: React.FC<MainProps> = ({}) => {
-  const theme = useTheme();
-  const classes = useStyles(theme);
-
   return (
-    <Box className={classes.wrapper}>
+    <Box sx={styles.wrapper}>
       <Typography variant="h6">{'MITAX Consulting sp. z o.o.'}</Typography>
       <Box mb={2} />
       <Typography>ul. Warszawska 4/8</Typography>

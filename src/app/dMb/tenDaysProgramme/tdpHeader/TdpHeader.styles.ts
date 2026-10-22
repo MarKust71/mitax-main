@@ -1,8 +1,6 @@
-import { makeStyles } from '@mui/styles';
-
-export const useStyles = makeStyles(() => ({
+export const styles = {
   wrapper: {
     display: 'flex',
     flexDirection: 'row',
   },
-}));
+};

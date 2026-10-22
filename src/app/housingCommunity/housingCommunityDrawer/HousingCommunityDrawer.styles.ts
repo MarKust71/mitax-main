@@ -1,5 +1,3 @@
-import { makeStyles } from '@mui/styles';
-
-export const useStyles = makeStyles(() => ({
+export const styles = {
   wrapper: {},
-}));
+};
