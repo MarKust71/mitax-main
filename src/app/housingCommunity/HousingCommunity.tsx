@@ -61,7 +61,7 @@ export const HousingCommunity: React.FC<HousingCommunityProps> = ({ children }) 
       <Box component="main">
         <Toolbar />
 
-        <Box mb={2} />
+        <Box sx={{ mb: 2 }} />
       </Box>
 
       {children}

@@ -5,12 +5,14 @@ import { Box, Button, Checkbox, FormControlLabel, TextField, Typography } from '
 import { Controller, useForm } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
 
-import { useMembers } from '../../../hooks/useMembers/useMembers';
-import { CreateMemberDTO } from '../../../hooks/useMembers/useMembers.types';
 import { HousingCommunity } from '../HousingCommunity';
 
 import { AddMemberForm, AddMemberProps } from './AddMember.types';
 import { addMemberFormDefaultValues } from './AddMember.constants';
+
+// eslint-disable-next-line import/extensions
+import { CreateMemberDTO } from '@/hooks/useMembers/useMembers.types';
+import { useMembers } from '@/hooks/useMembers/useMembers';
 
 export const AddMember: React.FC<AddMemberProps> = ({}) => {
   const { addMember } = useMembers();
@@ -88,7 +90,7 @@ export const AddMember: React.FC<AddMemberProps> = ({}) => {
           label={'Inny adres do korespondencji'}
         />
 
-        <Box mb={4} />
+        <Box sx={{ mb: 4 }} />
 
         <Button variant="contained" color="primary" type="submit">
           Dodaj

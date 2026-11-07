@@ -1,24 +1,22 @@
 import { useContext } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
-import { FirebaseContext } from '../../providers/Providers';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import {
-  setUnits,
-  setUnitsFetched,
-  setUnitsFetching,
-} from '../../reducers/unitsReducer/unitsReducer';
 
 import { createUnitMutation } from './mutations/createUnitMutation';
 import { CreateUnitDTO, Unit } from './useUnits.types';
 import { fetchAllUnitsQuery } from './queries/fetchAllUnitsQuery';
+
+import { setUnits, setUnitsFetched, setUnitsFetching } from '@/reducers/unitsReducer/unitsReducer';
+import { FirebaseContext } from '@/providers/Providers';
 
 export const useUnits = () => {
   const { db } = useContext(FirebaseContext);
   const dispatch = useAppDispatch();
   const units = useAppSelector((state) => state.units.units);
 
-  const { mutate, error, status } = useMutation(createUnitMutation, {
+  const { mutate, error, status } = useMutation({
+    mutationFn: createUnitMutation,
     onSuccess: () => {
       console.log('Unit created');
     },
@@ -29,17 +27,23 @@ export const useUnits = () => {
 
   const { refetch: fetchAll } = useQuery({
     queryKey: ['units'],
-    queryFn: () => fetchAllUnitsQuery({ db }),
-    onSuccess: (units: Unit[]) => {
-      dispatch(setUnits(units));
-      dispatch(setUnitsFetching(false));
-      dispatch(setUnitsFetched(true));
-    },
-    onError: (error: unknown) => {
-      dispatch(setUnitsFetching(false));
-      dispatch(setUnitsFetched(false));
+    queryFn: async () => {
+      try {
+        const units = (await fetchAllUnitsQuery({ db })) as Unit[];
 
-      console.error('Failed to fetch all units:', { error });
+        dispatch(setUnits(units));
+        dispatch(setUnitsFetching(false));
+        dispatch(setUnitsFetched(true));
+
+        return units;
+      } catch (error: unknown) {
+        dispatch(setUnitsFetching(false));
+        dispatch(setUnitsFetched(false));
+
+        console.error('Failed to fetch all units:', { error });
+
+        throw error;
+      }
     },
   });
 

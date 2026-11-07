@@ -2,7 +2,7 @@
 
 import React, { createContext } from 'react';
 import { ThemeProvider } from '@mui/material';
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
 import { getApp, getApps, initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -11,8 +11,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { pl } from 'date-fns/locale';
 
-import { theme } from '../theme/theme';
-import { store } from '../store/store';
+import { theme } from '@/theme/theme';
+import { store } from '@/store/store';
 
 const queryClient = new QueryClient();
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 const promptDirectory = require('inquirer-directory');
 
 const componentTypes = {
@@ -22,7 +21,9 @@ const customHookGenerator = () => ({
     },
   ],
   actions: function () {
-    const actions = [
+    let actions;
+
+    return (actions = [
       {
         type: 'add',
         path: 'src/hooks/{{directory}}/{{camelCase name}}/{{camelCase name}}.tsx',
@@ -33,9 +34,7 @@ const customHookGenerator = () => ({
         path: 'src/hooks/{{directory}}/{{camelCase name}}/{{camelCase name}}.test.tsx',
         templateFile: 'plop-templates/hook/hook.test.hbs',
       },
-    ];
-
-    return actions;
+    ]);
   },
 });
 
@@ -77,7 +76,9 @@ const reactComponentGenerator = () => ({
     },
   ],
   actions: function (data) {
-    const actions = [
+    let actions;
+
+    return (actions = [
       {
         type: 'add',
         path: `src/${data.baseDir}/{{directory}}/{{camelCase name}}/{{pascalCase name}}.tsx`,
@@ -98,9 +99,7 @@ const reactComponentGenerator = () => ({
         path: `src/${data.baseDir}/{{directory}}/{{camelCase name}}/{{pascalCase name}}.styles.ts`,
         templateFile: 'plop-templates/component/Component.styles.hbs',
       },
-    ];
-
-    return actions;
+    ]);
   },
 });
 

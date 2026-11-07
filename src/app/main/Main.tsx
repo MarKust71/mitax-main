@@ -10,13 +10,13 @@ export const Main: React.FC<MainProps> = ({}) => {
   return (
     <Box sx={styles.wrapper}>
       <Typography variant="h6">{'MITAX Consulting sp. z o.o.'}</Typography>
-      <Box mb={2} />
+      <Box sx={{ mb: 2 }} />
       <Typography>ul. Warszawska 4/8</Typography>
       <Typography>59-900 Zgorzelec</Typography>
       <Typography>
         mail: <Link href={'mailto: biuro@mitax.pl'}>biuro@mitax.pl</Link>
       </Typography>
-      <Box mb={2} />
+      <Box sx={{ mb: 2 }} />
       <Typography>
         NIP 615-204-34-32, REGON 022210312, VAT-ID PL6152043432, KRS 0000473064
       </Typography>

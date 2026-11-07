@@ -1,1 +1,1 @@
-export type MainProps = {};
+export type MainProps = Record<string, never>;

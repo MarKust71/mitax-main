@@ -25,7 +25,7 @@ export const PackageTracker: React.FC = () => {
             height: { ideal: 4320 },
           },
         },
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
         videoRef.current!,
         (result, error, controls) => {
           if (result) {
