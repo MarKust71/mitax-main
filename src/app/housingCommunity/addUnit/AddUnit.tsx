@@ -18,11 +18,13 @@ import { DevTool } from '@hookform/devtools';
 import { MobileDatePicker } from '@mui/x-date-pickers';
 
 import { HousingCommunity } from '../HousingCommunity';
-import { useMembers } from '../../../hooks/useMembers/useMembers';
-import { Member } from '../../../hooks/useMembers/useMembers.types';
 
 import { AddUnitForm, AddUnitProps } from './AddUnit.types';
 import { addUnitFormDefaultValues } from './AddUnit.constants';
+
+import { useMembers } from '@/hooks/useMembers/useMembers';
+// eslint-disable-next-line import/extensions
+import { Member } from '@/hooks/useMembers/useMembers.types';
 
 export const AddUnit: React.FC<AddUnitProps> = ({}) => {
   const { members: membersAll } = useMembers();

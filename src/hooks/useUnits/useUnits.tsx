@@ -1,17 +1,14 @@
 import { useContext } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
-import { FirebaseContext } from '../../providers/Providers';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import {
-  setUnits,
-  setUnitsFetched,
-  setUnitsFetching,
-} from '../../reducers/unitsReducer/unitsReducer';
 
 import { createUnitMutation } from './mutations/createUnitMutation';
 import { CreateUnitDTO, Unit } from './useUnits.types';
 import { fetchAllUnitsQuery } from './queries/fetchAllUnitsQuery';
+
+import { setUnits, setUnitsFetched, setUnitsFetching } from '@/reducers/unitsReducer/unitsReducer';
+import { FirebaseContext } from '@/providers/Providers';
 
 export const useUnits = () => {
   const { db } = useContext(FirebaseContext);

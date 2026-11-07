@@ -1,17 +1,18 @@
 import { useContext } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
-import { FirebaseContext } from '../../providers/Providers';
-import {
-  setMembers,
-  setMembersFetched,
-  setMembersFetching,
-} from '../../reducers/membersReducer/membersReducer';
 import { useAppDispatch, useAppSelector } from '../hooks';
 
 import { CreateMemberDTO, Member } from './useMembers.types';
 import { createMemberMutation } from './mutations/createMemberMutation';
 import { fetchAllMembersQuery } from './queries/fetchAllMembersQuery';
+
+import {
+  setMembers,
+  setMembersFetched,
+  setMembersFetching,
+} from '@/reducers/membersReducer/membersReducer';
+import { FirebaseContext } from '@/providers/Providers';
 
 export const useMembers = () => {
   const { db } = useContext(FirebaseContext);

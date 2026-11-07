@@ -11,8 +11,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { pl } from 'date-fns/locale';
 
-import { theme } from '../theme/theme';
-import { store } from '../store/store';
+import { theme } from '@/theme/theme';
+import { store } from '@/store/store';
 
 const queryClient = new QueryClient();
 
