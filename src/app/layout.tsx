@@ -1,7 +1,9 @@
 import React from 'react';
 import type { Metadata, Viewport } from 'next';
 
-import { Providers } from '../providers/Providers';
+import { Providers } from '@/providers/Providers';
+
+import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Marek Kustosz - MITAX Consulting sp. z o.o.',
