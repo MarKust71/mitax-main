@@ -18,7 +18,8 @@ export const useMembers = () => {
   const dispatch = useAppDispatch();
   const members = useAppSelector((state) => state.members.members);
 
-  const { mutateAsync, error, status } = useMutation(createMemberMutation, {
+  const { mutateAsync, error, status } = useMutation({
+    mutationFn: createMemberMutation,
     onSuccess: (data) => {
       return data;
     },
@@ -31,17 +32,23 @@ export const useMembers = () => {
 
   const { refetch: fetchAll } = useQuery({
     queryKey: ['members'],
-    queryFn: () => fetchAllMembersQuery({ db }),
-    onSuccess: (members: Member[]) => {
-      dispatch(setMembers(members));
-      dispatch(setMembersFetching(false));
-      dispatch(setMembersFetched(true));
-    },
-    onError: (error: unknown) => {
-      dispatch(setMembersFetching(false));
-      dispatch(setMembersFetched(false));
+    queryFn: async () => {
+      try {
+        const members: Member[] = await fetchAllMembersQuery({ db });
 
-      console.error('Failed to fetch all members:', { error });
+        dispatch(setMembers(members));
+        dispatch(setMembersFetching(false));
+        dispatch(setMembersFetched(true));
+
+        return members;
+      } catch (error: unknown) {
+        dispatch(setMembersFetching(false));
+        dispatch(setMembersFetched(false));
+
+        console.error('Failed to fetch all members:', { error });
+
+        throw error;
+      }
     },
   });
 

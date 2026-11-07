@@ -15,9 +15,7 @@ export const TenDaysProgramme: React.FC<TenDaysProgrammeProps> = ({}) => {
       <TdpHeader>
         <Typography
           variant={'h1'}
-          fontWeight={theme.typography.fontWeightBold}
-          fontSize={'12rem'}
-          pr={'2rem'}
+          sx={{ fontWeight: theme.typography.fontWeightBold, fontSize: '12rem', pr: '2rem' }}
         >
           10-
         </Typography>
@@ -46,7 +44,7 @@ export const TenDaysProgramme: React.FC<TenDaysProgrammeProps> = ({}) => {
             </Typography>
           </Box>
 
-          <Box mt={2} />
+          <Box sx={{ mt: 2 }} />
 
           <Typography variant={'h3'} component={'h2'}>
             DNIOWY PROGRAM
@@ -58,7 +56,7 @@ export const TenDaysProgramme: React.FC<TenDaysProgrammeProps> = ({}) => {
         </Box>
       </TdpHeader>
 
-      <Box pt={2} mb={2} sx={{ backgroundColor: theme.palette.primary.main, opacity: '0.4' }} />
+      <Box sx={{ pt: 2, mb: 2, backgroundColor: theme.palette.primary.main, opacity: '0.4' }} />
     </Container>
   );
 };

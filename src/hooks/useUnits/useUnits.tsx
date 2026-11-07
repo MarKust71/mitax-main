@@ -18,7 +18,8 @@ export const useUnits = () => {
   const dispatch = useAppDispatch();
   const units = useAppSelector((state) => state.units.units);
 
-  const { mutate, error, status } = useMutation(createUnitMutation, {
+  const { mutate, error, status } = useMutation({
+    mutationFn: createUnitMutation,
     onSuccess: () => {
       console.log('Unit created');
     },
@@ -29,17 +30,23 @@ export const useUnits = () => {
 
   const { refetch: fetchAll } = useQuery({
     queryKey: ['units'],
-    queryFn: () => fetchAllUnitsQuery({ db }),
-    onSuccess: (units: Unit[]) => {
-      dispatch(setUnits(units));
-      dispatch(setUnitsFetching(false));
-      dispatch(setUnitsFetched(true));
-    },
-    onError: (error: unknown) => {
-      dispatch(setUnitsFetching(false));
-      dispatch(setUnitsFetched(false));
+    queryFn: async () => {
+      try {
+        const units = (await fetchAllUnitsQuery({ db })) as Unit[];
 
-      console.error('Failed to fetch all units:', { error });
+        dispatch(setUnits(units));
+        dispatch(setUnitsFetching(false));
+        dispatch(setUnitsFetched(true));
+
+        return units;
+      } catch (error: unknown) {
+        dispatch(setUnitsFetching(false));
+        dispatch(setUnitsFetched(false));
+
+        console.error('Failed to fetch all units:', { error });
+
+        throw error;
+      }
     },
   });
 

@@ -1,1 +1,1 @@
-export type BlogProps = {};
+export type BlogProps = Record<string, never>;

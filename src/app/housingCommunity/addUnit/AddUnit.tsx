@@ -126,7 +126,7 @@ export const AddUnit: React.FC<AddUnitProps> = ({}) => {
         />
 
         {watch('isKdr') && (
-          <Box pl={1}>
+          <Box sx={{ pl: 1 }}>
             <Typography>KDR w okresie:</Typography>
 
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
@@ -136,11 +136,15 @@ export const AddUnit: React.FC<AddUnitProps> = ({}) => {
                 <Controller
                   control={control}
                   name="kdrFrom"
-                  render={({ field: { name, ...field } }) => (
+                  render={({ field: { name, value, ...field } }) => (
                     <MobileDatePicker
                       {...field}
+                      value={value ? new Date(value) : null}
                       onChange={(data) =>
-                        setValue(name, data || '', { shouldDirty: true, shouldTouch: true })
+                        setValue(name, data ? data.toISOString() : '', {
+                          shouldDirty: true,
+                          shouldTouch: true,
+                        })
                       }
                     />
                   )}
@@ -153,11 +157,15 @@ export const AddUnit: React.FC<AddUnitProps> = ({}) => {
                 <Controller
                   control={control}
                   name="kdrTo"
-                  render={({ field: { name, ...field } }) => (
+                  render={({ field: { name, value, ...field } }) => (
                     <MobileDatePicker
                       {...field}
+                      value={value ? new Date(value) : null}
                       onChange={(data) =>
-                        setValue(name, data || '', { shouldDirty: true, shouldTouch: true })
+                        setValue(name, data ? data.toISOString() : '', {
+                          shouldDirty: true,
+                          shouldTouch: true,
+                        })
                       }
                     />
                   )}
@@ -167,13 +175,13 @@ export const AddUnit: React.FC<AddUnitProps> = ({}) => {
           </Box>
         )}
 
-        <Box mb={2} />
+        <Box sx={{ mb: 2 }} />
 
-        <Typography variant="subtitle2" mb={1}>
+        <Typography variant="subtitle2" sx={{ mb: 1 }}>
           Właściciele
         </Typography>
 
-        <Box px={2}>
+        <Box sx={{ px: 2 }}>
           <FormControl fullWidth>
             <Select value={member} onChange={handleMemberSelectValueChange}>
               {membersAll.map((member) => (
@@ -185,7 +193,7 @@ export const AddUnit: React.FC<AddUnitProps> = ({}) => {
           </FormControl>
 
           {member && (
-            <Box mt={2} mb={2}>
+            <Box sx={{ mt: 2, mb: 2 }}>
               <Typography>Okres własności:</Typography>
 
               <Box sx={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
@@ -195,11 +203,15 @@ export const AddUnit: React.FC<AddUnitProps> = ({}) => {
                   <Controller
                     control={control}
                     name="memberFrom"
-                    render={({ field: { name, ...field } }) => (
+                    render={({ field: { name, value, ...field } }) => (
                       <MobileDatePicker
                         {...field}
+                        value={value ? new Date(value) : null}
                         onChange={(data) =>
-                          setValue(name, data || '', { shouldDirty: true, shouldTouch: true })
+                          setValue(name, data ? data.toISOString() : '', {
+                            shouldDirty: true,
+                            shouldTouch: true,
+                          })
                         }
                       />
                     )}
@@ -212,11 +224,15 @@ export const AddUnit: React.FC<AddUnitProps> = ({}) => {
                   <Controller
                     control={control}
                     name="memberTo"
-                    render={({ field: { name, ...field } }) => (
+                    render={({ field: { name, value, ...field } }) => (
                       <MobileDatePicker
                         {...field}
+                        value={value ? new Date(value) : null}
                         onChange={(data) =>
-                          setValue(name, data || '', { shouldDirty: true, shouldTouch: true })
+                          setValue(name, data ? data.toISOString() : '', {
+                            shouldDirty: true,
+                            shouldTouch: true,
+                          })
                         }
                       />
                     )}
@@ -251,7 +267,7 @@ export const AddUnit: React.FC<AddUnitProps> = ({}) => {
           )}
         </Box>
 
-        <Box mb={4} />
+        <Box sx={{ mb: 4 }} />
 
         <Button variant="contained" color="primary" type="submit">
           Dodaj lokal

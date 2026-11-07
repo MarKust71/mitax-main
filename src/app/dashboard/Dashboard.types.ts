@@ -1,1 +1,1 @@
-export interface DashboardProps {}
+export type DashboardProps = Record<string, never>;

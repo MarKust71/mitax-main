@@ -88,7 +88,7 @@ export const AddMember: React.FC<AddMemberProps> = ({}) => {
           label={'Inny adres do korespondencji'}
         />
 
-        <Box mb={4} />
+        <Box sx={{ mb: 4 }} />
 
         <Button variant="contained" color="primary" type="submit">
           Dodaj

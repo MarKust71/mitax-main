@@ -9,7 +9,7 @@ import { dashboardLinks } from './Dashboard.constants';
 
 export const Dashboard: React.FC<DashboardProps> = ({}) => {
   return (
-    <Box p={2}>
+    <Box sx={{ p: 2 }}>
       <Typography variant="h6">Dashboard</Typography>
 
       <List>
