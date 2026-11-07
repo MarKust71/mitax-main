@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Metadata, Viewport } from 'next';
 
-import { Providers } from '../providers/Providers';
+import { Providers } from '@/providers/Providers';
 
 import './globals.css';
 
