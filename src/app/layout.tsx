@@ -3,6 +3,8 @@ import type { Metadata, Viewport } from 'next';
 
 import { Providers } from '../providers/Providers';
 
+import './globals.css';
+
 export const metadata: Metadata = {
   title: 'Marek Kustosz - MITAX Consulting sp. z o.o.',
   description: 'Marek Kustosz i MITAX Consulting sp. z o.o. - informacje kontaktowe',
