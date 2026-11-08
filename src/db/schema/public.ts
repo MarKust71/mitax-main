@@ -1,11 +1,65 @@
-// Shared, application-wide tables (users, sessions, ...) live in the `public` schema.
-//
-// import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
-//
-// export const users = pgTable('users', {
-//   id: serial('id').primaryKey(),
-//   email: text('email').notNull().unique(),
-//   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-// });
+// Shared, application-wide tables (users, sessions, settings, ...) live in the `public` schema.
+import { index, integer, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
-export {};
+// Application parameters (key/value), e.g. the activation link validity period.
+// Defaults are inserted by the migration; see src/lib/settings.ts for the known keys.
+export const appSettings = pgTable('app_settings', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+  description: text('description'),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+// The e-mail address (stored lower-cased) is the user name.
+export const users = pgTable('users', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  email: text('email').notNull().unique(),
+  passwordHash: text('password_hash').notNull(),
+  // NULL until the user opens the activation link.
+  emailVerifiedAt: timestamp('email_verified_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+// Only a SHA-256 hash of the token is stored; the raw token exists only in the e-mailed link.
+export const emailVerificationTokens = pgTable(
+  'email_verification_tokens',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull().unique(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [index('email_verification_tokens_user_id_idx').on(table.userId)],
+);
+
+// Server-side sessions; the cookie holds a random token, the table its SHA-256 hash.
+export const sessions = pgTable(
+  'sessions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull().unique(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [index('sessions_user_id_idx').on(table.userId)],
+);
+
+// Failed/attempted logins and registrations, used for simple rate limiting.
+export const authAttempts = pgTable(
+  'auth_attempts',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    email: text('email').notNull(),
+    kind: text('kind').notNull(), // 'login' | 'register' | 'resend'
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index('auth_attempts_email_kind_created_idx').on(table.email, table.kind, table.createdAt),
+  ],
+);

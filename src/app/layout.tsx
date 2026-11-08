@@ -2,6 +2,7 @@ import React from 'react';
 import type { Metadata, Viewport } from 'next';
 
 import { Providers } from '@/providers/Providers';
+import { getCurrentUser } from '@/lib/auth/session';
 
 import './globals.css';
 
@@ -24,7 +25,10 @@ export const viewport: Viewport = {
   themeColor: '#000000',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // A DB outage must not take the whole site down: fall back to "logged out".
+  const initialUser = await getCurrentUser().catch(() => null);
+
   return (
     <html lang="pl">
       <head>
@@ -36,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
       </head>
       <body>
-        <Providers>{children}</Providers>
+        <Providers initialUser={initialUser}>{children}</Providers>
       </body>
     </html>
   );
