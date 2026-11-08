@@ -55,7 +55,7 @@
     "eslint": "eslint --fix .",
     "serve": "next start -p 3000",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:migrate": "drizzle-kit migrate && node scripts/db-grant-app-user.mjs",
     "db:studio": "drizzle-kit studio",
     "db:check": "drizzle-kit check",
     "db:grants": "node scripts/db-grant-app-user.mjs"
