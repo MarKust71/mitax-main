@@ -4,7 +4,7 @@ import React, { useState, useTransition } from 'react';
 
 import { UserDetailsProps } from './AdminPanel.types';
 
-import { updateUserAction } from '@/app/actions/admin';
+import { setUserBlockedAction, updateUserAction } from '@/app/actions/admin';
 import { USER_ROLES } from '@/lib/roles';
 import type { UserRole } from '@/lib/roles';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ export const UserDetails: React.FC<UserDetailsProps> = ({ user, contexts, isSelf
   const [role, setRole] = useState<UserRole>(user.role);
   const [contextIds, setContextIds] = useState<string[]>(user.contextIds);
   const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
+  const [blockedAt, setBlockedAt] = useState<string | null>(user.blockedAt);
   const [pending, startTransition] = useTransition();
 
   const toggleContext = (id: string) =>
@@ -25,8 +26,36 @@ export const UserDetails: React.FC<UserDetailsProps> = ({ user, contexts, isSelf
       const result = await updateUserAction({ userId: user.id, role, contextIds });
 
       if (result.ok) {
-        onSaved({ id: user.id, email: user.email, role, active: user.active });
+        onSaved({
+          id: user.id,
+          email: user.email,
+          role,
+          active: user.active,
+          blocked: Boolean(blockedAt),
+        });
         setMessage({ text: 'Zapisano.', isError: false });
+      } else {
+        setMessage({ text: result.error, isError: true });
+      }
+    });
+
+  const handleToggleBlocked = () =>
+    startTransition(async () => {
+      const result = await setUserBlockedAction(user.id, !blockedAt);
+
+      if (result.ok) {
+        setBlockedAt(result.data.blockedAt);
+        onSaved({
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          active: user.active,
+          blocked: Boolean(result.data.blockedAt),
+        });
+        setMessage({
+          text: result.data.blockedAt ? 'Konto zablokowane.' : 'Konto odblokowane.',
+          isError: false,
+        });
       } else {
         setMessage({ text: result.error, isError: true });
       }
@@ -39,6 +68,10 @@ export const UserDetails: React.FC<UserDetailsProps> = ({ user, contexts, isSelf
         <dd className="break-all">{user.email}</dd>
         <dt className="text-muted-foreground">Status</dt>
         <dd>{user.active ? 'Aktywne' : 'Oczekuje na aktywację'}</dd>
+        <dt className="text-muted-foreground">Blokada</dt>
+        <dd>
+          {blockedAt ? `Zablokowane (${new Date(blockedAt).toLocaleString('pl-PL')})` : 'Brak'}
+        </dd>
         <dt className="text-muted-foreground">Utworzone</dt>
         <dd>{new Date(user.createdAt).toLocaleString('pl-PL')}</dd>
         {user.emailVerifiedAt && (
@@ -88,6 +121,15 @@ export const UserDetails: React.FC<UserDetailsProps> = ({ user, contexts, isSelf
         <Button onClick={handleSave} disabled={pending}>
           Zapisz
         </Button>
+        {!isSelf && (
+          <Button
+            variant={blockedAt ? 'outline' : 'destructive'}
+            onClick={handleToggleBlocked}
+            disabled={pending}
+          >
+            {blockedAt ? 'Odblokuj' : 'Zablokuj'}
+          </Button>
+        )}
         {message && (
           <span role="status" className={message.isError ? 'text-destructive' : undefined}>
             {message.text}

@@ -136,6 +136,10 @@ export async function loginAction(formData: FormData): Promise<AuthActionResult>
     };
   }
 
+  if (user.blockedAt) {
+    return { ok: false, error: 'Konto zostało zablokowane. Skontaktuj się z administratorem.' };
+  }
+
   await createSession(user.id);
 
   return { ok: true, user: { id: user.id, email: user.email, role: user.role } };

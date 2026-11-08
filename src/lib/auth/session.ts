@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { cookies } from 'next/headers';
-import { and, eq, gt } from 'drizzle-orm';
+import { and, eq, gt, isNull } from 'drizzle-orm';
 
 import { generateToken, hashToken } from './crypto';
 
@@ -42,7 +42,11 @@ export const getCurrentUser = async (): Promise<SessionUser | null> => {
     .select({ id: users.id, email: users.email, role: users.role })
     .from(sessions)
     .innerJoin(users, eq(users.id, sessions.userId))
-    .where(and(eq(sessions.tokenHash, hashToken(token)), gt(sessions.expiresAt, new Date())))
+    .where(and(
+          eq(sessions.tokenHash, hashToken(token)),
+          gt(sessions.expiresAt, new Date()),
+          isNull(users.blockedAt),
+        ))
     .limit(1);
 
   return row ?? null;

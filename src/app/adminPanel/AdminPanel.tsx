@@ -7,11 +7,7 @@ import { UserDetails } from './UserDetails';
 import { AdminPanelProps } from './AdminPanel.types';
 
 import { getUserAction, listUsersAction } from '@/app/actions/admin';
-import type {
-  AdminContext,
-  AdminUserDetails,
-  AdminUserListItem,
-} from '@/app/actions/adminTypes';
+import type { AdminContext, AdminUserDetails, AdminUserListItem } from '@/app/actions/adminTypes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
@@ -105,7 +101,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     )}
                   >
                     <span className="truncate">{user.email}</span>
-                    <span className="shrink-0 text-xs text-muted-foreground">{user.role}</span>
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {user.blocked ? `${user.role} · zablokowany` : user.role}
+                    </span>
                   </button>
                 </li>
               ))}

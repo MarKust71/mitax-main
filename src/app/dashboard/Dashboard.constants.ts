@@ -1,4 +1,4 @@
-import { MainRoutes } from '../../routing/MainRouter.constants';
+import { MainRoutes } from '@/routing/MainRouter.constants';
 
 export const dashboardLinks = [
   { label: 'Strona główna', route: MainRoutes.HOME },

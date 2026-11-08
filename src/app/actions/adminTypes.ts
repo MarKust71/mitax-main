@@ -5,11 +5,13 @@ export type AdminUserListItem = {
   email: string;
   role: UserRole;
   active: boolean;
+  blocked: boolean;
 };
 
 export type AdminUserDetails = AdminUserListItem & {
   createdAt: string;
   emailVerifiedAt: string | null;
+  blockedAt: string | null;
   contextIds: string[];
 };
 

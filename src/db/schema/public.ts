@@ -31,6 +31,8 @@ export const users = pgTable('users', {
   // NULL until the user opens the activation link.
   emailVerifiedAt: timestamp('email_verified_at', { withTimezone: true }),
   role: userRole('role').notNull().default('USER'),
+  // Set by an ADMIN: the user cannot log in and existing sessions stop working.
+  blockedAt: timestamp('blocked_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
 

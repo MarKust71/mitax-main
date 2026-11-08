@@ -10,7 +10,7 @@ import type {
 } from './adminTypes';
 
 import { db } from '@/db';
-import { contexts, userContexts, users } from '@/db/schema';
+import { contexts, sessions, userContexts, users } from '@/db/schema';
 import { getCurrentAdmin } from '@/lib/auth/session';
 import { USER_ROLES } from '@/lib/roles';
 import type { UserRole } from '@/lib/roles';
@@ -54,13 +54,16 @@ export async function listUsersAction(
     return { ok: false, error: FORBIDDEN };
   }
 
-  const term = String(search ?? '').trim().slice(0, 100);
+  const term = String(search ?? '')
+    .trim()
+    .slice(0, 100);
   const rows = await db
     .select({
       id: users.id,
       email: users.email,
       role: users.role,
       emailVerifiedAt: users.emailVerifiedAt,
+      blockedAt: users.blockedAt,
     })
     .from(users)
     .where(term ? ilike(users.email, `%${escapeLike(term)}%`) : undefined)
@@ -69,7 +72,11 @@ export async function listUsersAction(
 
   return {
     ok: true,
-    data: rows.map(({ emailVerifiedAt, ...row }) => ({ ...row, active: Boolean(emailVerifiedAt) })),
+    data: rows.map(({ emailVerifiedAt, blockedAt, ...row }) => ({
+      ...row,
+      active: Boolean(emailVerifiedAt),
+      blocked: Boolean(blockedAt),
+    })),
   };
 }
 
@@ -85,6 +92,7 @@ export async function getUserAction(userId: string): Promise<AdminActionResult<A
       role: users.role,
       createdAt: users.createdAt,
       emailVerifiedAt: users.emailVerifiedAt,
+      blockedAt: users.blockedAt,
     })
     .from(users)
     .where(eq(users.id, String(userId)))
@@ -106,6 +114,8 @@ export async function getUserAction(userId: string): Promise<AdminActionResult<A
       email: user.email,
       role: user.role,
       active: Boolean(user.emailVerifiedAt),
+      blocked: Boolean(user.blockedAt),
+      blockedAt: user.blockedAt?.toISOString() ?? null,
       createdAt: user.createdAt.toISOString(),
       emailVerifiedAt: user.emailVerifiedAt?.toISOString() ?? null,
       contextIds: assigned.map(({ contextId }) => contextId),
@@ -159,13 +169,56 @@ export async function updateUserAction(input: {
       await tx.delete(userContexts).where(eq(userContexts.userId, userId));
 
       if (contextIds.length > 0) {
-        await tx.insert(userContexts).values(contextIds.map((contextId) => ({ userId, contextId })));
+        await tx
+          .insert(userContexts)
+          .values(contextIds.map((contextId) => ({ userId, contextId })));
       }
 
       return { ok: true, data: undefined } as const;
     });
   } catch (error) {
     console.error('Updating the user failed:', error);
+
+    return { ok: false, error: UNEXPECTED };
+  }
+}
+
+// Blocking also ends all of the user's sessions; unblocking just allows logging in again.
+export async function setUserBlockedAction(
+  userId: string,
+  blocked: boolean,
+): Promise<AdminActionResult<{ blockedAt: string | null }>> {
+  const admin = await getCurrentAdmin();
+
+  if (!admin) {
+    return { ok: false, error: FORBIDDEN };
+  }
+
+  if (userId === admin.id) {
+    return { ok: false, error: 'Nie możesz zablokować własnego konta.' };
+  }
+
+  try {
+    const blockedAt = blocked ? new Date() : null;
+    const updated = await db.transaction(async (tx) => {
+      const rows = await tx
+        .update(users)
+        .set({ blockedAt })
+        .where(eq(users.id, String(userId)))
+        .returning({ id: users.id });
+
+      if (rows.length > 0 && blocked) {
+        await tx.delete(sessions).where(eq(sessions.userId, String(userId)));
+      }
+
+      return rows.length > 0;
+    });
+
+    return updated
+      ? { ok: true, data: { blockedAt: blockedAt?.toISOString() ?? null } }
+      : { ok: false, error: 'Nie znaleziono użytkownika.' };
+  } catch (error) {
+    console.error('Blocking the user failed:', error);
 
     return { ok: false, error: UNEXPECTED };
   }
@@ -185,14 +238,14 @@ export async function listContextsAction(): Promise<AdminActionResult<AdminConte
 }
 
 // Creates the context row and its PostgreSQL schema in one transaction (DDL is transactional).
-export async function createContextAction(
-  name: string,
-): Promise<AdminActionResult<AdminContext>> {
+export async function createContextAction(name: string): Promise<AdminActionResult<AdminContext>> {
   if (!(await getCurrentAdmin())) {
     return { ok: false, error: FORBIDDEN };
   }
 
-  const trimmed = String(name ?? '').trim().replace(/\s+/g, ' ');
+  const trimmed = String(name ?? '')
+    .trim()
+    .replace(/\s+/g, ' ');
   const schemaName = toSchemaName(trimmed);
 
   if (!trimmed || trimmed.length > CONTEXT_NAME_MAX || !schemaName) {
