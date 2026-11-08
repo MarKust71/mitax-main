@@ -1,9 +1,11 @@
 import type { AdminContext, AdminUserDetails, AdminUserListItem } from '../actions/adminTypes';
+import type { AuditLogPage } from '../actions/auditLogTypes';
 
 export type AdminPanelProps = {
   currentUserId: string;
   initialUsers: AdminUserListItem[];
   initialContexts: AdminContext[];
+  initialAuditLog: AuditLogPage;
 };
 
 export type UserDetailsProps = {
@@ -16,10 +18,16 @@ export type UserDetailsProps = {
 export type ContextsPanelProps = {
   contexts: AdminContext[];
   onCreated: (context: AdminContext) => void;
+  onModulesChanged: (contextId: string, modules: AdminContext['modules']) => void;
 };
 
 export type UsersPanelProps = {
   currentUserId: string;
   initialUsers: AdminUserListItem[];
   contexts: AdminContext[];
+};
+
+export type ActivityLogPanelProps = {
+  contexts: AdminContext[];
+  initialPage: AuditLogPage;
 };

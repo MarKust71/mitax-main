@@ -29,6 +29,27 @@
       "when": 1794156641028,
       "tag": "0003_user_blocking",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794163924886,
+      "tag": "0004_bank_statements_and_audit_log",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794165240457,
+      "tag": "0005_own_accounts",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794166016428,
+      "tag": "0006_user_context_permissions",
+      "breakpoints": true
     }
   ]
 }

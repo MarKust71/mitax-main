@@ -4,11 +4,16 @@ import React, { useState, useTransition } from 'react';
 
 import { ContextsPanelProps } from './AdminPanel.types';
 
-import { createContextAction } from '@/app/actions/admin';
+import { createContextAction, setContextModulesAction } from '@/app/actions/admin';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { MODULES } from '@/lib/modules';
 
-export const ContextsPanel: React.FC<ContextsPanelProps> = ({ contexts, onCreated }) => {
+export const ContextsPanel: React.FC<ContextsPanelProps> = ({
+  contexts,
+  onCreated,
+  onModulesChanged,
+}) => {
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -21,6 +26,21 @@ export const ContextsPanel: React.FC<ContextsPanelProps> = ({ contexts, onCreate
       if (result.ok) {
         onCreated(result.data);
         setName('');
+        setError(null);
+      } else {
+        setError(result.error);
+      }
+    });
+  };
+
+  const toggleModule = (contextId: string, current: string[], key: string, enabled: boolean) => {
+    const next = enabled ? [...current, key] : current.filter((item) => item !== key);
+
+    startTransition(async () => {
+      const result = await setContextModulesAction(contextId, next);
+
+      if (result.ok) {
+        onModulesChanged(contextId, result.data);
         setError(null);
       } else {
         setError(result.error);
@@ -57,9 +77,29 @@ export const ContextsPanel: React.FC<ContextsPanelProps> = ({ contexts, onCreate
         </p>
         <ul aria-label="Konteksty" className="flex flex-col gap-1">
           {contexts.map((context) => (
-            <li key={context.id} className="flex items-baseline justify-between gap-2">
-              <span>{context.name}</span>
-              <code className="text-xs text-muted-foreground">{context.schemaName}</code>
+            <li
+              key={context.id}
+              className="flex flex-col gap-1 border-b border-border py-2 last:border-0"
+            >
+              <div className="flex items-baseline justify-between gap-2">
+                <span>{context.name}</span>
+                <code className="text-xs text-muted-foreground">{context.schemaName}</code>
+              </div>
+              <fieldset className="flex flex-wrap gap-x-4 gap-y-1" disabled={pending}>
+                <legend className="sr-only">Moduły kontekstu {context.name}</legend>
+                {MODULES.map(({ key, label }) => (
+                  <label key={key} className="flex items-center gap-1.5 text-xs">
+                    <input
+                      type="checkbox"
+                      checked={context.modules.includes(key)}
+                      onChange={(event) =>
+                        toggleModule(context.id, context.modules, key, event.target.checked)
+                      }
+                    />
+                    {label}
+                  </label>
+                ))}
+              </fieldset>
             </li>
           ))}
           {contexts.length === 0 && <li className="text-muted-foreground">Brak kontekstów.</li>}

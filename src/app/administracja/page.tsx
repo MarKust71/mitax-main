@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 
 import { listContextsAction, listUsersAction } from '../actions/admin';
+import { listAuditLogAction } from '../actions/auditLog';
 import { AdminPanel } from '../adminPanel/AdminPanel';
 
 import { getCurrentAdmin } from '@/lib/auth/session';
@@ -14,13 +15,18 @@ export default async function Page() {
     redirect('/');
   }
 
-  const [users, contexts] = await Promise.all([listUsersAction(''), listContextsAction()]);
+  const [users, contexts, auditLog] = await Promise.all([
+    listUsersAction(''),
+    listContextsAction(),
+    listAuditLogAction({}, null),
+  ]);
 
   return (
     <AdminPanel
       currentUserId={admin.id}
       initialUsers={users.ok ? users.data : []}
       initialContexts={contexts.ok ? contexts.data : []}
+      initialAuditLog={auditLog.ok ? auditLog.data : { entries: [], nextCursor: null }}
     />
   );
 }

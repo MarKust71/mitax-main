@@ -4,6 +4,7 @@ import { asc, eq, ilike, inArray, sql } from 'drizzle-orm';
 
 import type {
   AdminActionResult,
+  AdminAssignment,
   AdminContext,
   AdminUserDetails,
   AdminUserListItem,
@@ -12,6 +13,12 @@ import type {
 import { db } from '@/db';
 import { contexts, sessions, userContexts, users } from '@/db/schema';
 import { getCurrentAdmin } from '@/lib/auth/session';
+import { writeAudit } from '@/lib/audit';
+import { AUDIT_ACTIONS } from '@/lib/auditActions';
+import { UUID_PATTERN } from '@/lib/contexts';
+import { isModuleKey } from '@/lib/modules';
+import { isPermissionKey } from '@/lib/permissions';
+import type { ModuleKey } from '@/lib/modules';
 import { USER_ROLES } from '@/lib/roles';
 import type { UserRole } from '@/lib/roles';
 
@@ -103,7 +110,7 @@ export async function getUserAction(userId: string): Promise<AdminActionResult<A
   }
 
   const assigned = await db
-    .select({ contextId: userContexts.contextId })
+    .select({ contextId: userContexts.contextId, permissions: userContexts.permissions })
     .from(userContexts)
     .where(eq(userContexts.userId, user.id));
 
@@ -118,7 +125,11 @@ export async function getUserAction(userId: string): Promise<AdminActionResult<A
       blockedAt: user.blockedAt?.toISOString() ?? null,
       createdAt: user.createdAt.toISOString(),
       emailVerifiedAt: user.emailVerifiedAt?.toISOString() ?? null,
-      contextIds: assigned.map(({ contextId }) => contextId),
+      // Keys that no longer exist are dropped, so saving never fails because of an old value.
+      assignments: assigned.map(({ contextId, permissions }) => ({
+        contextId,
+        permissions: permissions.filter(isPermissionKey),
+      })),
     },
   };
 }
@@ -126,7 +137,7 @@ export async function getUserAction(userId: string): Promise<AdminActionResult<A
 export async function updateUserAction(input: {
   userId: string;
   role: UserRole;
-  contextIds: string[];
+  assignments: AdminAssignment[];
 }): Promise<AdminActionResult> {
   const admin = await getCurrentAdmin();
 
@@ -135,10 +146,25 @@ export async function updateUserAction(input: {
   }
 
   const { userId, role } = input;
-  const contextIds = [...new Set(input.contextIds ?? [])];
+  const requested = Array.isArray(input.assignments) ? input.assignments : [];
 
   if (!USER_ROLES.includes(role)) {
     return { ok: false, error: 'Nieprawidłowa rola.' };
+  }
+
+  // One entry per context; permissions must be known ones.
+  const assignments = new Map<string, AdminAssignment['permissions']>();
+
+  for (const { contextId, permissions } of requested) {
+    if (!UUID_PATTERN.test(String(contextId))) {
+      return { ok: false, error: 'Wybrany kontekst nie istnieje.' };
+    }
+
+    if (!Array.isArray(permissions) || !permissions.every(isPermissionKey)) {
+      return { ok: false, error: 'Nieznane uprawnienie.' };
+    }
+
+    assignments.set(contextId, [...new Set(permissions)].sort());
   }
 
   // Keeps at least one admin: nobody can take their own admin rights away.
@@ -148,30 +174,80 @@ export async function updateUserAction(input: {
 
   try {
     return await db.transaction(async (tx) => {
-      const [target] = await tx.select({ id: users.id }).from(users).where(eq(users.id, userId));
+      const [target] = await tx
+        .select({ id: users.id, email: users.email, role: users.role })
+        .from(users)
+        .where(eq(users.id, userId));
 
       if (!target) {
         return { ok: false, error: 'Nie znaleziono użytkownika.' } as const;
       }
 
-      if (contextIds.length > 0) {
+      if (assignments.size > 0) {
         const found = await tx
           .select({ id: contexts.id })
           .from(contexts)
-          .where(inArray(contexts.id, contextIds));
+          .where(inArray(contexts.id, [...assignments.keys()]));
 
-        if (found.length !== contextIds.length) {
+        if (found.length !== assignments.size) {
           return { ok: false, error: 'Wybrany kontekst nie istnieje.' } as const;
         }
       }
 
+      const before = new Map(
+        (
+          await tx
+            .select({ contextId: userContexts.contextId, permissions: userContexts.permissions })
+            .from(userContexts)
+            .where(eq(userContexts.userId, userId))
+        ).map(({ contextId, permissions }) => [contextId, [...permissions].sort()]),
+      );
+
       await tx.update(users).set({ role }).where(eq(users.id, userId));
       await tx.delete(userContexts).where(eq(userContexts.userId, userId));
 
-      if (contextIds.length > 0) {
+      if (assignments.size > 0) {
         await tx
           .insert(userContexts)
-          .values(contextIds.map((contextId) => ({ userId, contextId })));
+          .values(
+            [...assignments].map(([contextId, permissions]) => ({
+              userId,
+              contextId,
+              permissions,
+            })),
+          );
+      }
+
+      if (target.role !== role) {
+        await writeAudit(tx, admin, {
+          contextId: null,
+          action: AUDIT_ACTIONS.userRoleChanged,
+          entityType: 'user',
+          entityId: userId,
+          details: { user: target.email, before: target.role, after: role },
+        });
+      }
+
+      // One log entry per context whose assignment or permissions changed.
+      for (const contextId of new Set([...before.keys(), ...assignments.keys()])) {
+        const was = before.get(contextId);
+        const now = assignments.get(contextId);
+
+        if (JSON.stringify(was) !== JSON.stringify(now)) {
+          await writeAudit(tx, admin, {
+            contextId,
+            action: AUDIT_ACTIONS.userAccessChanged,
+            entityType: 'user',
+            entityId: userId,
+            details: {
+              user: target.email,
+              assignedBefore: was !== undefined,
+              assignedAfter: now !== undefined,
+              permissionsBefore: was ?? [],
+              permissionsAfter: now ?? [],
+            },
+          });
+        }
       }
 
       return { ok: true, data: undefined } as const;
@@ -230,7 +306,12 @@ export async function listContextsAction(): Promise<AdminActionResult<AdminConte
   }
 
   const rows = await db
-    .select({ id: contexts.id, name: contexts.name, schemaName: contexts.schemaName })
+    .select({
+      id: contexts.id,
+      name: contexts.name,
+      schemaName: contexts.schemaName,
+      modules: contexts.modules,
+    })
     .from(contexts)
     .orderBy(asc(contexts.name));
 
@@ -259,10 +340,12 @@ export async function createContextAction(name: string): Promise<AdminActionResu
     const created = await db.transaction(async (tx) => {
       await tx.execute(sql`select public.create_context_schema(${schemaName})`);
 
-      const [row] = await tx
-        .insert(contexts)
-        .values({ name: trimmed, schemaName })
-        .returning({ id: contexts.id, name: contexts.name, schemaName: contexts.schemaName });
+      const [row] = await tx.insert(contexts).values({ name: trimmed, schemaName }).returning({
+        id: contexts.id,
+        name: contexts.name,
+        schemaName: contexts.schemaName,
+        modules: contexts.modules,
+      });
 
       return row;
     });
@@ -277,5 +360,56 @@ export async function createContextAction(name: string): Promise<AdminActionResu
         ? 'Kontekst o takiej nazwie (lub nazwie schematu) już istnieje.'
         : UNEXPECTED,
     };
+  }
+}
+
+// Switches optional features on/off for a context; the change is written to the activity log.
+export async function setContextModulesAction(
+  contextId: string,
+  modules: string[],
+): Promise<AdminActionResult<ModuleKey[]>> {
+  const admin = await getCurrentAdmin();
+
+  if (!admin) {
+    return { ok: false, error: FORBIDDEN };
+  }
+
+  const next = [...new Set(Array.isArray(modules) ? modules : [])];
+
+  if (!UUID_PATTERN.test(String(contextId ?? ''))) {
+    return { ok: false, error: 'Nie znaleziono kontekstu.' };
+  }
+
+  if (!next.every(isModuleKey)) {
+    return { ok: false, error: 'Nieznany moduł.' };
+  }
+
+  try {
+    return await db.transaction(async (tx) => {
+      const [current] = await tx
+        .select({ modules: contexts.modules })
+        .from(contexts)
+        .where(eq(contexts.id, String(contextId ?? '')))
+        .for('update');
+
+      if (!current) {
+        return { ok: false, error: 'Nie znaleziono kontekstu.' } as const;
+      }
+
+      await tx.update(contexts).set({ modules: next }).where(eq(contexts.id, contextId));
+      await writeAudit(tx, admin, {
+        contextId,
+        action: AUDIT_ACTIONS.contextModulesChanged,
+        entityType: 'context',
+        entityId: contextId,
+        details: { before: current.modules, after: next },
+      });
+
+      return { ok: true, data: next } as const;
+    });
+  } catch (error) {
+    console.error('Changing the context modules failed:', error);
+
+    return { ok: false, error: UNEXPECTED };
   }
 }

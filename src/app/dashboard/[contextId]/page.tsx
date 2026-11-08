@@ -21,5 +21,12 @@ export default async function Page({ params }: { params: Promise<{ contextId: st
     notFound();
   }
 
-  return <ContextDashboard name={context.name} schemaName={context.schemaName} />;
+  return (
+    <ContextDashboard
+      name={context.name}
+      schemaName={context.schemaName}
+      contextId={context.id}
+      modules={context.modules}
+    />
+  );
 }
