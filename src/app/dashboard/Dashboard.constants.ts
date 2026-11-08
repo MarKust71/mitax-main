@@ -17,3 +17,5 @@ export const dashboardLinks = [
 
 // Shown to ADMIN users only.
 export const adminLinks = [{ label: 'Administracja', route: MainRoutes.ADMIN }];
+
+export const DASHBOARD_GENERAL_LABEL = 'Ogólny';
