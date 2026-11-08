@@ -17,3 +17,9 @@ export type ContextsPanelProps = {
   contexts: AdminContext[];
   onCreated: (context: AdminContext) => void;
 };
+
+export type UsersPanelProps = {
+  currentUserId: string;
+  initialUsers: AdminUserListItem[];
+  contexts: AdminContext[];
+};
