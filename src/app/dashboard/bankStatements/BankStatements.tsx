@@ -20,7 +20,12 @@ import { cn } from '@/lib/utils';
 
 const formatAmount = (amount: string, currency: string): string => {
   try {
-    return new Intl.NumberFormat('pl-PL', { style: 'currency', currency }).format(Number(amount));
+    // Polish rules skip the thousands separator below 10 000; "always" keeps all amounts alike.
+    return new Intl.NumberFormat('pl-PL', {
+      style: 'currency',
+      currency,
+      useGrouping: 'always',
+    }).format(Number(amount));
   } catch {
     return `${amount} ${currency}`;
   }

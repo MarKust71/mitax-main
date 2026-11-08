@@ -132,4 +132,18 @@ describe('BankStatements', () => {
     await waitFor(() => expect(screen.getByRole('checkbox', { name: /^Oświata:/ })).toBeChecked());
     expect(screen.getByText('Opłata za egzamin')).toBeInTheDocument();
   });
+
+  test('separates thousands in every amount, also below 10 000', () => {
+    renderList([
+      payment({ id: 'a', amount: '1483.39' }),
+      payment({ id: 'b', amount: '523868.03' }),
+      payment({ id: 'c', amount: '260.13' }),
+    ]);
+
+    const normalized = (text: string) => text.replace(/\s/g, ' ');
+
+    expect(screen.getAllByText((text) => normalized(text) === '1 483,39 zł')).toHaveLength(1);
+    expect(screen.getAllByText((text) => normalized(text) === '523 868,03 zł')).toHaveLength(1);
+    expect(screen.getAllByText((text) => normalized(text) === '260,13 zł')).toHaveLength(1);
+  });
 });
