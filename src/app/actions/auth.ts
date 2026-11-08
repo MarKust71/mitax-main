@@ -119,10 +119,14 @@ export async function loginAction(formData: FormData): Promise<AuthActionResult>
 
   const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
-  // Hash a dummy value for unknown users to keep response time similar.
-  const passwordOk = user
-    ? await verifyPassword(password, user.passwordHash)
-    : (await hashPassword(password), false);
+  let passwordOk = false;
+
+  if (user) {
+    passwordOk = await verifyPassword(password, user.passwordHash);
+  } else {
+    // Hash a dummy value for unknown users to keep response time similar.
+    await hashPassword(password);
+  }
 
   if (!user || !passwordOk) {
     return { ok: false, error: INVALID_CREDENTIALS };
