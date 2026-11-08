@@ -11,8 +11,12 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { pl } from 'date-fns/locale';
 
+import { AuthStoreProvider } from './AuthStoreProvider';
+
 import { theme } from '@/theme/theme';
 import { store } from '@/store/store';
+import type { AuthUser } from '@/app/actions/authTypes';
+
 
 const queryClient = new QueryClient();
 
@@ -36,14 +40,19 @@ const db = getFirestore(app);
 
 export const FirebaseContext = createContext({ app, db });
 
-export const Providers: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const Providers: React.FC<{ children: React.ReactNode; initialUser?: AuthUser | null }> = ({
+  children,
+  initialUser = null,
+}) => {
   return (
     <AppRouterCacheProvider>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={pl}>
         <Provider store={store}>
           <FirebaseContext.Provider value={{ app, db }}>
             <QueryClientProvider client={queryClient}>
-              <ThemeProvider theme={theme}>{children}</ThemeProvider>
+              <ThemeProvider theme={theme}>
+                <AuthStoreProvider initialUser={initialUser}>{children}</AuthStoreProvider>
+              </ThemeProvider>
             </QueryClientProvider>
           </FirebaseContext.Provider>
         </Provider>
