@@ -1,6 +1,8 @@
 import React from 'react';
 import type { Metadata, Viewport } from 'next';
 
+import { Header } from './header/Header';
+
 import { Providers } from '@/providers/Providers';
 import { getCurrentUser } from '@/lib/auth/session';
 
@@ -40,7 +42,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
       </head>
       <body>
-        <Providers initialUser={initialUser}>{children}</Providers>
+        <Providers initialUser={initialUser}>
+          <Header />
+          {children}
+        </Providers>
       </body>
     </html>
   );
