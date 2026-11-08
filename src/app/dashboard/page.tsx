@@ -13,5 +13,5 @@ export default async function Page() {
     redirect('/');
   }
 
-  return <Dashboard />;
+  return <Dashboard isAdmin={user.role === 'ADMIN'} />;
 }

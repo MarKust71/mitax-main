@@ -8,6 +8,20 @@
       "when": 1794136972700,
       "tag": "0000_auth_and_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794155969729,
+      "tag": "0001_user_roles_and_contexts",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794155970218,
+      "tag": "0002_create_context_schema_function",
+      "breakpoints": true
     }
   ]
 }

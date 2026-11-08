@@ -7,12 +7,13 @@ import { generateToken, hashToken } from './crypto';
 
 import { db } from '@/db';
 import { sessions, users } from '@/db/schema';
+import type { UserRole } from '@/lib/roles';
 import { getNumberSetting } from '@/lib/settings';
 
 
 export const SESSION_COOKIE = 'session';
 
-export type SessionUser = { id: string; email: string };
+export type SessionUser = { id: string; email: string; role: UserRole };
 
 export const createSession = async (userId: string): Promise<void> => {
   const ttlDays = await getNumberSetting('sessionTtlDays');
@@ -38,7 +39,7 @@ export const getCurrentUser = async (): Promise<SessionUser | null> => {
   }
 
   const [row] = await db
-    .select({ id: users.id, email: users.email })
+    .select({ id: users.id, email: users.email, role: users.role })
     .from(sessions)
     .innerJoin(users, eq(users.id, sessions.userId))
     .where(and(eq(sessions.tokenHash, hashToken(token)), gt(sessions.expiresAt, new Date())))
@@ -56,4 +57,11 @@ export const destroySession = async (): Promise<void> => {
   }
 
   cookieStore.delete(SESSION_COOKIE);
+};
+
+// Server-side authorization guard for admin-only actions and pages.
+export const getCurrentAdmin = async (): Promise<SessionUser | null> => {
+  const user = await getCurrentUser();
+
+  return user?.role === 'ADMIN' ? user : null;
 };

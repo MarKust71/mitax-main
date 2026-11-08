@@ -2,9 +2,9 @@ import { createAuthStore } from './authStore';
 
 describe('authStore', () => {
   test('starts with the initial user and a closed dialog', () => {
-    const store = createAuthStore({ id: '1', email: 'a@b.pl' });
+    const store = createAuthStore({ id: '1', email: 'a@b.pl', role: 'USER' });
 
-    expect(store.getState().user).toEqual({ id: '1', email: 'a@b.pl' });
+    expect(store.getState().user).toEqual({ id: '1', email: 'a@b.pl', role: 'USER' });
     expect(store.getState().dialogOpen).toBe(false);
   });
 
@@ -22,7 +22,7 @@ describe('authStore', () => {
     const first = createAuthStore();
     const second = createAuthStore();
 
-    first.getState().setUser({ id: '1', email: 'a@b.pl' });
+    first.getState().setUser({ id: '1', email: 'a@b.pl', role: 'USER' });
 
     expect(second.getState().user).toBeNull();
   });

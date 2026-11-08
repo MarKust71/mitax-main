@@ -138,7 +138,7 @@ export async function loginAction(formData: FormData): Promise<AuthActionResult>
 
   await createSession(user.id);
 
-  return { ok: true, user: { id: user.id, email: user.email } };
+  return { ok: true, user: { id: user.id, email: user.email, role: user.role } };
 }
 
 export async function logoutAction(): Promise<AuthActionResult> {

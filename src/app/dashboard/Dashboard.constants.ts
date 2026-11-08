@@ -14,3 +14,6 @@ export const dashboardLinks = [
   { label: 'Komornik - plan podziału', route: MainRoutes.KOMORNIK_PLAN_PODZIALU },
   { label: 'KuMamyBiznes', route: MainRoutes.KUMAMYBIZNES },
 ];
+
+// Shown to ADMIN users only.
+export const adminLinks = [{ label: 'Administracja', route: MainRoutes.ADMIN }];
