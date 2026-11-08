@@ -12,12 +12,26 @@ import { registerAttempt } from '@/lib/auth/rateLimit';
 import { createSession, destroySession, getCurrentUser } from '@/lib/auth/session';
 import { getNumberSetting } from '@/lib/settings';
 
-
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TOO_MANY_ATTEMPTS = 'Zbyt wiele prób. Spróbuj ponownie za kilka minut.';
 const INVALID_CREDENTIALS = 'Nieprawidłowy adres e-mail lub hasło.';
 const REGISTERED_MESSAGE =
   'Jeśli adres może zostać zarejestrowany, wysłaliśmy na niego link aktywacyjny.';
+
+const MAIL_FAILED = 'Nie udało się wysłać wiadomości e-mail. Spróbuj ponownie później.';
+
+// Returns false (and logs the cause on the server) when the e-mail could not be sent.
+const trySendActivationLink = async (userId: string, email: string): Promise<boolean> => {
+  try {
+    await sendActivationLink(userId, email);
+
+    return true;
+  } catch (error) {
+    console.error('Sending the activation e-mail failed:', error);
+
+    return false;
+  }
+};
 
 const readEmail = (formData: FormData): string =>
   String(formData.get('email') ?? '')
@@ -59,8 +73,8 @@ export async function registerAction(formData: FormData): Promise<AuthActionResu
       .onConflictDoNothing()
       .returning({ id: users.id });
 
-    if (created) {
-      await sendActivationLink(created.id, email);
+    if (created && !(await trySendActivationLink(created.id, email))) {
+      return { ok: false, error: MAIL_FAILED };
     }
   }
 
@@ -84,8 +98,8 @@ export async function resendActivationAction(formData: FormData): Promise<AuthAc
     .where(eq(users.email, email))
     .limit(1);
 
-  if (user && !user.emailVerifiedAt) {
-    await sendActivationLink(user.id, email);
+  if (user && !user.emailVerifiedAt && !(await trySendActivationLink(user.id, email))) {
+    return { ok: false, error: MAIL_FAILED };
   }
 
   return { ok: true, message: 'Jeśli konto czeka na aktywację, wysłaliśmy nowy link.' };
