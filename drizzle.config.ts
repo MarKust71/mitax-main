@@ -1,4 +1,5 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
+import { basename } from 'node:path';
 import { defineConfig } from 'drizzle-kit';
 
 // drizzle-kit does not load .env by itself. In CI / production the variables
@@ -17,10 +18,18 @@ const requireEnv = (name: string): string => {
   return value;
 };
 
+const SCHEMA_DIR = './src/db/schema';
+
+// Every src/db/schema/<name>.ts (except index.ts) is a PostgreSQL schema managed by drizzle-kit.
+const managedSchemas = readdirSync(SCHEMA_DIR)
+  .filter((file) => file.endsWith('.ts') && file !== 'index.ts')
+  .map((file) => basename(file, '.ts'));
+
 // Migrations run as the admin (schema owner) user, never as the application user.
 export default defineConfig({
   dialect: 'postgresql',
-  schema: './src/db/schema.ts',
+  schema: SCHEMA_DIR,
+  schemaFilter: managedSchemas,
   out: './drizzle',
   dbCredentials: {
     host: requireEnv('DB_HOST'),
