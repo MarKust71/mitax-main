@@ -35,6 +35,7 @@ const payment = (overrides: Partial<BankPayment>): BankPayment => ({
 const renderList = (payments: BankPayment[], canMark = true, restrictedView = false) =>
   render(
     <BankStatements
+      userId="u1"
       contextId="c1"
       contextName="DIR"
       initialPayments={payments}
@@ -47,9 +48,14 @@ const renderList = (payments: BankPayment[], canMark = true, restrictedView = fa
   );
 
 describe('BankStatements', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    window.localStorage.clear();
+  });
 
-  test('filters payments flagged as oświata that are not processed yet', () => {
+  const combo = (name: string) => screen.getByRole('combobox', { name });
+
+  test('combines the filters: only oświata that is not processed yet', () => {
     renderList([
       payment({ id: 'a', title: 'Zwykła' }),
       payment({ id: 'b', title: 'Oświata nowa', isOswiata: true }),
@@ -61,11 +67,42 @@ describe('BankStatements', () => {
       }),
     ]);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Oświata do przetworzenia' }));
+    fireEvent.change(combo('Oświata:'), { target: { value: 'only' } });
+    fireEvent.change(combo('Przetworzone:'), { target: { value: 'hide' } });
 
     expect(screen.getByText('Oświata nowa')).toBeInTheDocument();
     expect(screen.queryByText('Zwykła')).not.toBeInTheDocument();
     expect(screen.queryByText('Oświata gotowa')).not.toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Wyświetlono 1 z 3');
+  });
+
+  test('"Ukryj oświatę" and "Tylko przetworzone" work on their own', () => {
+    renderList([
+      payment({ id: 'a', title: 'Zwykła' }),
+      payment({ id: 'b', title: 'Oświata nowa', isOswiata: true }),
+      payment({ id: 'c', title: 'Zwykła gotowa', processedAt: '2024-11-16T10:00:00Z' }),
+    ]);
+
+    fireEvent.change(combo('Oświata:'), { target: { value: 'hide' } });
+    expect(screen.queryByText('Oświata nowa')).not.toBeInTheDocument();
+    expect(screen.getByText('Zwykła')).toBeInTheDocument();
+
+    fireEvent.change(combo('Przetworzone:'), { target: { value: 'only' } });
+    expect(screen.getByText('Zwykła gotowa')).toBeInTheDocument();
+    expect(screen.queryByText('Zwykła')).not.toBeInTheDocument();
+  });
+
+  test('"Wyczyść filtry" appears only with an active filter and restores the list', () => {
+    renderList([payment({ id: 'a', title: 'Zwykła' }), payment({ id: 'b', isOswiata: true })]);
+
+    expect(screen.queryByRole('button', { name: 'Wyczyść filtry' })).not.toBeInTheDocument();
+
+    fireEvent.change(combo('Oświata:'), { target: { value: 'only' } });
+    expect(screen.queryByText('Zwykła')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Wyczyść filtry' }));
+    expect(screen.getByText('Zwykła')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Wyczyść filtry' })).not.toBeInTheDocument();
   });
 
   test('marking a payment as oświata calls the action and shows the result', async () => {
@@ -99,13 +136,12 @@ describe('BankStatements', () => {
       .forEach((checkbox) => expect(checkbox).toBeDisabled());
   });
 
-  test('restricted view shows a note and drops the redundant "Oświata" filter', () => {
+  test('restricted view shows a note and offers no oświata filter', () => {
     renderList([payment({ isOswiata: true })], true, true);
 
     expect(screen.getByText(/Widzisz tylko wpłaty oznaczone jako „oświata”/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Wszystkie' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Oświata do przetworzenia' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Oświata' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox', { name: 'Oświata:' })).not.toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Przetworzone:' })).toBeInTheDocument();
   });
 
   test('in the restricted view turning the oświata flag off removes the payment from the list', async () => {
@@ -145,5 +181,44 @@ describe('BankStatements', () => {
     expect(screen.getAllByText((text) => normalized(text) === '1 483,39 zł')).toHaveLength(1);
     expect(screen.getAllByText((text) => normalized(text) === '523 868,03 zł')).toHaveLength(1);
     expect(screen.getAllByText((text) => normalized(text) === '260,13 zł')).toHaveLength(1);
+  });
+
+  test('remembers the filters per user and context', () => {
+    const { unmount } = renderList([payment({ id: 'a', title: 'Zwykła' })]);
+
+    fireEvent.change(combo('Przetworzone:'), { target: { value: 'hide' } });
+    expect(JSON.parse(window.localStorage.getItem('bankStatements.filters.u1.c1') ?? '{}')).toEqual(
+      {
+        oswiata: 'all',
+        processed: 'hide',
+      },
+    );
+    unmount();
+
+    renderList([payment({ id: 'a', title: 'Zwykła' })]);
+    expect(combo('Przetworzone:')).toHaveValue('hide');
+  });
+
+  test('ignores garbage in the storage', () => {
+    window.localStorage.setItem(
+      'bankStatements.filters.u1.c1',
+      '{"oswiata":"bogus","processed":1}',
+    );
+    renderList([payment({})]);
+
+    expect(combo('Oświata:')).toHaveValue('all');
+    expect(combo('Przetworzone:')).toHaveValue('all');
+  });
+
+  test('a saved "Ukryj oświatę" does not hide the list in the restricted view', () => {
+    window.localStorage.setItem(
+      'bankStatements.filters.u1.c1',
+      JSON.stringify({ oswiata: 'hide', processed: 'all' }),
+    );
+    renderList([payment({ isOswiata: true })], true, true);
+
+    expect(screen.getByText('Opłata za egzamin')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Wyświetlono 1 z 1');
+    expect(screen.queryByRole('button', { name: 'Wyczyść filtry' })).not.toBeInTheDocument();
   });
 });

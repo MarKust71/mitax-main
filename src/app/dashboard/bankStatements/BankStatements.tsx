@@ -3,9 +3,10 @@
 import React, { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { FILTERS } from './BankStatements.constants';
+import { OSWIATA_FILTER_OPTIONS, PROCESSED_FILTER_OPTIONS } from './BankStatements.constants';
+import { loadFilters, saveFilters } from './BankStatements.storage';
 import { OwnAccounts } from './OwnAccounts';
-import type { BankStatementsProps, PaymentFilter } from './BankStatements.types';
+import type { BankStatementsProps, TriFilter } from './BankStatements.types';
 
 import {
   importStatementAction,
@@ -31,15 +32,13 @@ const formatAmount = (amount: string, currency: string): string => {
   }
 };
 
-const matches = (payment: BankPayment, filter: PaymentFilter): boolean => {
-  if (filter === 'oswiata') {
-    return payment.isOswiata;
-  }
+const passes = (value: boolean, filter: TriFilter): boolean =>
+  filter === 'all' || (filter === 'only' ? value : !value);
 
-  return filter === 'toProcess' ? payment.isOswiata && !payment.processedAt : true;
-};
+const selectClass = 'h-8 rounded-lg border border-border bg-background px-2 text-sm';
 
 export const BankStatements: React.FC<BankStatementsProps> = ({
+  userId,
   contextId,
   contextName,
   initialPayments,
@@ -52,11 +51,30 @@ export const BankStatements: React.FC<BankStatementsProps> = ({
   const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
   const [payments, setPayments] = useState(initialPayments);
-  const [filter, setFilter] = useState<PaymentFilter>('all');
+  const [oswiataFilter, setOswiataFilter] = useState<TriFilter>('all');
+  const [processedFilter, setProcessedFilter] = useState<TriFilter>('all');
+  // Saved filters are read after mount: the server render has no localStorage.
+  const [filtersLoaded, setFiltersLoaded] = useState(false);
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [importing, startImport] = useTransition();
   const [, startMark] = useTransition();
+
+  useEffect(() => {
+    const saved = loadFilters(userId, contextId);
+
+    if (saved) {
+      setOswiataFilter(saved.oswiata);
+      setProcessedFilter(saved.processed);
+    }
+    setFiltersLoaded(true);
+  }, [userId, contextId]);
+
+  useEffect(() => {
+    if (filtersLoaded) {
+      saveFilters(userId, contextId, { oswiata: oswiataFilter, processed: processedFilter });
+    }
+  }, [filtersLoaded, userId, contextId, oswiataFilter, processedFilter]);
 
   // router.refresh() after an import delivers new server data.
   useEffect(() => setPayments(initialPayments), [initialPayments]);
@@ -117,9 +135,20 @@ export const BankStatements: React.FC<BankStatementsProps> = ({
     });
   };
 
-  // In the restricted view every payment is "oświata" already, so that filter would repeat "Wszystkie".
-  const visibleFilters = FILTERS.filter(({ id }) => !restrictedView || id !== 'oswiata');
-  const visible = payments.filter((payment) => matches(payment, filter));
+  // In the restricted view the "oświata" filter is hidden and every payment is "oświata" already,
+  // so a saved value must not apply there (it could hide the whole list with no way to undo).
+  const effectiveOswiata: TriFilter = restrictedView ? 'all' : oswiataFilter;
+  const filtersActive = effectiveOswiata !== 'all' || processedFilter !== 'all';
+  const visible = payments.filter(
+    (payment) =>
+      passes(payment.isOswiata, effectiveOswiata) &&
+      passes(payment.processedAt !== null, processedFilter),
+  );
+
+  const clearFilters = () => {
+    setOswiataFilter('all');
+    setProcessedFilter('all');
+  };
 
   return (
     <section className="flex flex-col gap-4">
@@ -171,19 +200,49 @@ export const BankStatements: React.FC<BankStatementsProps> = ({
         </p>
       )}
 
-      <div role="group" aria-label="Filtr wpłat" className="flex flex-wrap gap-1">
-        {visibleFilters.map(({ id, label }) => (
-          <Button
-            key={id}
-            type="button"
-            size="sm"
-            variant={filter === id ? 'default' : 'outline'}
-            aria-pressed={filter === id}
-            onClick={() => setFilter(id)}
+      <div
+        role="group"
+        aria-label="Filtry wpłat"
+        className="flex flex-wrap items-center gap-3 text-sm"
+      >
+        {!restrictedView && (
+          <label className="flex items-center gap-1.5">
+            Oświata:
+            <select
+              value={oswiataFilter}
+              onChange={(event) => setOswiataFilter(event.target.value as TriFilter)}
+              className={selectClass}
+            >
+              {OSWIATA_FILTER_OPTIONS.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        <label className="flex items-center gap-1.5">
+          Przetworzone:
+          <select
+            value={processedFilter}
+            onChange={(event) => setProcessedFilter(event.target.value as TriFilter)}
+            className={selectClass}
           >
-            {label}
+            {PROCESSED_FILTER_OPTIONS.map(({ value, label }) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+        {filtersActive && (
+          <Button type="button" size="sm" variant="ghost" onClick={clearFilters}>
+            Wyczyść filtry
           </Button>
-        ))}
+        )}
+        <span role="status" className="ml-auto text-xs text-muted-foreground">
+          Wyświetlono {visible.length} z {payments.length}
+        </span>
       </div>
 
       <div className="overflow-x-auto rounded-xl ring-1 ring-foreground/10">

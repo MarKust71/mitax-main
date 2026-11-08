@@ -1,6 +1,7 @@
 import type { BankPayment, OwnAccount } from '@/app/actions/bankStatementsTypes';
 
 export type BankStatementsProps = {
+  userId: string;
   contextId: string;
   contextName: string;
   initialPayments: BankPayment[];
@@ -18,4 +19,4 @@ export type OwnAccountsProps = {
   canManage: boolean;
 };
 
-export type PaymentFilter = 'all' | 'oswiata' | 'toProcess';
+export type TriFilter = 'all' | 'only' | 'hide';

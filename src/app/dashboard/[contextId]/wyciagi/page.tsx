@@ -31,6 +31,7 @@ export default async function Page({ params }: { params: Promise<{ contextId: st
 
   return (
     <BankStatements
+      userId={user.id}
       contextId={context.id}
       contextName={context.name}
       initialPayments={payments}
