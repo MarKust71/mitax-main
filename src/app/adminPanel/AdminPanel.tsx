@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 
+import { ActivityLogPanel } from './ActivityLogPanel';
 import { ContextsPanel } from './ContextsPanel';
 import { UsersPanel } from './UsersPanel';
 import { AdminPanelProps } from './AdminPanel.types';
@@ -15,6 +16,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   currentUserId,
   initialUsers,
   initialContexts,
+  initialAuditLog,
 }) => {
   const [area, setArea] = useState<AdminArea>('users');
   const [contexts, setContexts] = useState<AdminContext[]>(initialContexts);
@@ -64,6 +66,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 )
               }
             />
+          )}
+          {area === 'activity' && (
+            <ActivityLogPanel contexts={contexts} initialPage={initialAuditLog} />
           )}
         </section>
       </div>
