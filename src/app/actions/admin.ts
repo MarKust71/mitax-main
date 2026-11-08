@@ -12,6 +12,11 @@ import type {
 import { db } from '@/db';
 import { contexts, sessions, userContexts, users } from '@/db/schema';
 import { getCurrentAdmin } from '@/lib/auth/session';
+import { writeAudit } from '@/lib/audit';
+import { AUDIT_ACTIONS } from '@/lib/auditActions';
+import { UUID_PATTERN } from '@/lib/contexts';
+import { isModuleKey } from '@/lib/modules';
+import type { ModuleKey } from '@/lib/modules';
 import { USER_ROLES } from '@/lib/roles';
 import type { UserRole } from '@/lib/roles';
 
@@ -230,7 +235,12 @@ export async function listContextsAction(): Promise<AdminActionResult<AdminConte
   }
 
   const rows = await db
-    .select({ id: contexts.id, name: contexts.name, schemaName: contexts.schemaName })
+    .select({
+      id: contexts.id,
+      name: contexts.name,
+      schemaName: contexts.schemaName,
+      modules: contexts.modules,
+    })
     .from(contexts)
     .orderBy(asc(contexts.name));
 
@@ -259,10 +269,12 @@ export async function createContextAction(name: string): Promise<AdminActionResu
     const created = await db.transaction(async (tx) => {
       await tx.execute(sql`select public.create_context_schema(${schemaName})`);
 
-      const [row] = await tx
-        .insert(contexts)
-        .values({ name: trimmed, schemaName })
-        .returning({ id: contexts.id, name: contexts.name, schemaName: contexts.schemaName });
+      const [row] = await tx.insert(contexts).values({ name: trimmed, schemaName }).returning({
+        id: contexts.id,
+        name: contexts.name,
+        schemaName: contexts.schemaName,
+        modules: contexts.modules,
+      });
 
       return row;
     });
@@ -277,5 +289,56 @@ export async function createContextAction(name: string): Promise<AdminActionResu
         ? 'Kontekst o takiej nazwie (lub nazwie schematu) już istnieje.'
         : UNEXPECTED,
     };
+  }
+}
+
+// Switches optional features on/off for a context; the change is written to the activity log.
+export async function setContextModulesAction(
+  contextId: string,
+  modules: string[],
+): Promise<AdminActionResult<ModuleKey[]>> {
+  const admin = await getCurrentAdmin();
+
+  if (!admin) {
+    return { ok: false, error: FORBIDDEN };
+  }
+
+  const next = [...new Set(Array.isArray(modules) ? modules : [])];
+
+  if (!UUID_PATTERN.test(String(contextId ?? ''))) {
+    return { ok: false, error: 'Nie znaleziono kontekstu.' };
+  }
+
+  if (!next.every(isModuleKey)) {
+    return { ok: false, error: 'Nieznany moduł.' };
+  }
+
+  try {
+    return await db.transaction(async (tx) => {
+      const [current] = await tx
+        .select({ modules: contexts.modules })
+        .from(contexts)
+        .where(eq(contexts.id, String(contextId ?? '')))
+        .for('update');
+
+      if (!current) {
+        return { ok: false, error: 'Nie znaleziono kontekstu.' } as const;
+      }
+
+      await tx.update(contexts).set({ modules: next }).where(eq(contexts.id, contextId));
+      await writeAudit(tx, admin, {
+        contextId,
+        action: AUDIT_ACTIONS.contextModulesChanged,
+        entityType: 'context',
+        entityId: contextId,
+        details: { before: current.modules, after: next },
+      });
+
+      return { ok: true, data: next } as const;
+    });
+  } catch (error) {
+    console.error('Changing the context modules failed:', error);
+
+    return { ok: false, error: UNEXPECTED };
   }
 }

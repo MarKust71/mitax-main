@@ -16,3 +16,4 @@
 // managed schemas from the files in this directory. Re-export every file below.
 
 export * from './public';
+export * from './dir';

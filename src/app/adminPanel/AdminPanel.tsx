@@ -56,6 +56,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             <ContextsPanel
               contexts={contexts}
               onCreated={(context) => setContexts((current) => [...current, context])}
+              onModulesChanged={(contextId, modules) =>
+                setContexts((current) =>
+                  current.map((context) =>
+                    context.id === contextId ? { ...context, modules } : context,
+                  ),
+                )
+              }
             />
           )}
         </section>

@@ -1,3 +1,4 @@
+import type { ModuleKey } from '@/lib/modules';
 import type { UserRole } from '@/lib/roles';
 
 export type AdminUserListItem = {
@@ -15,7 +16,11 @@ export type AdminUserDetails = AdminUserListItem & {
   contextIds: string[];
 };
 
-export type AdminContext = { id: string; name: string; schemaName: string };
+export type AdminContext = {
+  id: string;
+  name: string;
+  schemaName: string;
+  modules: ModuleKey[];
+};
 
-export type AdminActionResult<T = undefined> =
-  { ok: true; data: T } | { ok: false; error: string };
+export type AdminActionResult<T = undefined> = { ok: true; data: T } | { ok: false; error: string };

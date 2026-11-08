@@ -16,6 +16,7 @@ export type UserDetailsProps = {
 export type ContextsPanelProps = {
   contexts: AdminContext[];
   onCreated: (context: AdminContext) => void;
+  onModulesChanged: (contextId: string, modules: AdminContext['modules']) => void;
 };
 
 export type UsersPanelProps = {
