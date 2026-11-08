@@ -14,7 +14,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
   const links = isAdmin ? [...dashboardLinks, ...adminLinks] : dashboardLinks;
 
   return (
-    <main className="mx-auto max-w-6xl p-4 sm:p-6">
+    <section>
       <h1 className="mb-6 text-2xl font-semibold tracking-tight">Dashboard</h1>
 
       <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -51,6 +51,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
           </li>
         ))}
       </ul>
-    </main>
+    </section>
   );
 };
