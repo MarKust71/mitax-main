@@ -5,18 +5,20 @@ import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 
 import { DashboardProps } from './Dashboard.types';
-import { dashboardLinks } from './Dashboard.constants';
+import { adminLinks, dashboardLinks } from './Dashboard.constants';
 
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
-export const Dashboard: React.FC<DashboardProps> = ({}) => {
+export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
+  const links = isAdmin ? [...dashboardLinks, ...adminLinks] : dashboardLinks;
+
   return (
     <main className="mx-auto max-w-6xl p-4 sm:p-6">
       <h1 className="mb-6 text-2xl font-semibold tracking-tight">Dashboard</h1>
 
       <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {dashboardLinks.map(({ label, route }) => (
+        {links.map(({ label, route }) => (
           <li key={route}>
             <Link
               href={route}

@@ -56,6 +56,8 @@ try {
       `GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA ${schema} TO ${appUser}`,
       `GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA ${schema} TO ${appUser}`,
     ]),
+    // The only way the app can create schemas (contexts): a SECURITY DEFINER function.
+    `GRANT EXECUTE ON FUNCTION public.create_context_schema(text) TO ${appUser}`,
     // Database-wide (no IN SCHEMA): applies to objects the admin creates in any schema.
     `ALTER DEFAULT PRIVILEGES GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO ${appUser}`,
     `ALTER DEFAULT PRIVILEGES GRANT USAGE, SELECT ON SEQUENCES TO ${appUser}`,

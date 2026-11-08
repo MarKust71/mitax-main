@@ -1,1 +1,1 @@
-export type DashboardProps = Record<string, never>;
+export type DashboardProps = { isAdmin?: boolean };

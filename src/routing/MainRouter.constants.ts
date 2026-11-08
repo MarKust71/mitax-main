@@ -1,4 +1,5 @@
 export const MainRoutes = {
+  ADMIN: '/administracja',
   BLOG: '/blog',
   CONTACT: '/kontakt',
   DASHBOARD: '/dashboard',
