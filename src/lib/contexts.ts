@@ -6,6 +6,8 @@ import { db } from '@/db';
 import { contexts, userContexts } from '@/db/schema';
 import type { SessionUser } from '@/lib/auth/session';
 import type { ModuleKey } from '@/lib/modules';
+import { PERMISSION_KEYS } from '@/lib/permissions';
+import type { PermissionKey } from '@/lib/permissions';
 
 export type ContextSummary = {
   id: string;
@@ -71,4 +73,22 @@ export const getModuleContext = async (
   const context = await getAccessibleContext(user, contextId);
 
   return context?.modules.includes(module) ? context : null;
+};
+
+// What the user may do in the context: ADMIN everything, USER what was granted to them there.
+export const getContextPermissions = async (
+  user: SessionUser,
+  contextId: string,
+): Promise<readonly PermissionKey[]> => {
+  if (user.role === 'ADMIN') {
+    return PERMISSION_KEYS;
+  }
+
+  const [row] = await db
+    .select({ permissions: userContexts.permissions })
+    .from(userContexts)
+    .where(and(eq(userContexts.userId, user.id), eq(userContexts.contextId, contextId)))
+    .limit(1);
+
+  return row?.permissions ?? [];
 };

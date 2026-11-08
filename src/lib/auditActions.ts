@@ -8,6 +8,8 @@ export const AUDIT_ACTIONS = {
   ownAccountAdded: 'own_account.added',
   ownAccountRemoved: 'own_account.removed',
   contextModulesChanged: 'context.modules_changed',
+  userAccessChanged: 'user.access_changed',
+  userRoleChanged: 'user.role_changed',
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];
@@ -21,4 +23,6 @@ export const AUDIT_ACTION_LABELS: Record<AuditAction, string> = {
   'own_account.added': 'Dodano rachunek własny',
   'own_account.removed': 'Usunięto rachunek własny',
   'context.modules_changed': 'Zmieniono moduły kontekstu',
+  'user.access_changed': 'Zmieniono dostęp użytkownika do kontekstu',
+  'user.role_changed': 'Zmieniono rolę użytkownika',
 };

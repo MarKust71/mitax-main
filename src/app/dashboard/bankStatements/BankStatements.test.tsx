@@ -32,7 +32,7 @@ const payment = (overrides: Partial<BankPayment>): BankPayment => ({
   ...overrides,
 });
 
-const renderList = (payments: BankPayment[], canMark = true) =>
+const renderList = (payments: BankPayment[], canMark = true, restrictedView = false) =>
   render(
     <BankStatements
       contextId="c1"
@@ -40,6 +40,7 @@ const renderList = (payments: BankPayment[], canMark = true) =>
       initialPayments={payments}
       canImport
       canMark={canMark}
+      restrictedView={restrictedView}
       ownAccounts={[]}
       canManageAccounts
     />,
@@ -96,5 +97,39 @@ describe('BankStatements', () => {
     within(row)
       .getAllByRole('checkbox')
       .forEach((checkbox) => expect(checkbox).toBeDisabled());
+  });
+
+  test('restricted view shows a note and drops the redundant "Oświata" filter', () => {
+    renderList([payment({ isOswiata: true })], true, true);
+
+    expect(screen.getByText(/Widzisz tylko wpłaty oznaczone jako „oświata”/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Wszystkie' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Oświata do przetworzenia' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Oświata' })).not.toBeInTheDocument();
+  });
+
+  test('in the restricted view turning the oświata flag off removes the payment from the list', async () => {
+    setOswiata.mockResolvedValue({ ok: true, data: payment({ isOswiata: false }) });
+    renderList(
+      [payment({ isOswiata: true }), payment({ id: 'p2', title: 'Inna wpłata', isOswiata: true })],
+      true,
+      true,
+    );
+
+    fireEvent.click(screen.getAllByRole('checkbox', { name: /^Oświata:/ })[0]);
+
+    await waitFor(() => expect(screen.queryByText('Opłata za egzamin')).not.toBeInTheDocument());
+    expect(screen.getByText('Inna wpłata')).toBeInTheDocument();
+    expect(setOswiata).toHaveBeenCalledWith('c1', 'p1', false);
+  });
+
+  test('the full view keeps the payment in the list when the flag changes', async () => {
+    setOswiata.mockResolvedValue({ ok: true, data: payment({ isOswiata: true }) });
+    renderList([payment({})]);
+
+    fireEvent.click(screen.getByRole('checkbox', { name: /^Oświata:/ }));
+
+    await waitFor(() => expect(screen.getByRole('checkbox', { name: /^Oświata:/ })).toBeChecked());
+    expect(screen.getByText('Opłata za egzamin')).toBeInTheDocument();
   });
 });

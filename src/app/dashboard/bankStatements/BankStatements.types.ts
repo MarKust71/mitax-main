@@ -6,6 +6,8 @@ export type BankStatementsProps = {
   initialPayments: BankPayment[];
   canImport: boolean;
   canMark: boolean;
+  // The user lacks "Wszystkie operacje": sees only payments flagged "oświata".
+  restrictedView: boolean;
   ownAccounts: OwnAccount[];
   canManageAccounts: boolean;
 };

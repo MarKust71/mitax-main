@@ -1,18 +1,24 @@
-import type { SessionUser } from '@/lib/auth/session';
+import type { PermissionKey } from '@/lib/permissions';
 
-// What a user may do with bank statements in a context. For now everybody who can open the
-// module may do everything; permission levels will be added here, in one place.
-//   scope 'all'    -> sees every payment
-//   scope 'oswiata' -> sees only payments flagged "oświata"
+// What a user may do with bank statements in a context, derived from their permissions there.
+// Without "bank_statements.all_operations" (the default) the list shows only payments flagged
+// "oświata" - flagged earlier by someone with wider access. Such a user processes them, or turns
+// the flag off, which hands the payment back to the people who see everything. With
+// "bank_statements.all_operations" the user sees every payment.
+// Importing statements needs "bank_statements.import", maintaining the own accounts list
+// "bank_statements.own_accounts".
 export type BankStatementsAccess = {
   canImport: boolean;
   canMark: boolean;
   canManageAccounts: boolean;
-  scope: 'all' | 'oswiata';
+  scope: 'all' | 'oswiataOnly';
 };
 
-export const getBankStatementsAccess = (user: SessionUser): BankStatementsAccess => {
-  void user;
-
-  return { canImport: true, canMark: true, canManageAccounts: true, scope: 'all' };
-};
+export const getBankStatementsAccess = (
+  permissions: readonly PermissionKey[],
+): BankStatementsAccess => ({
+  canImport: permissions.includes('bank_statements.import'),
+  canMark: true,
+  canManageAccounts: permissions.includes('bank_statements.own_accounts'),
+  scope: permissions.includes('bank_statements.all_operations') ? 'all' : 'oswiataOnly',
+});

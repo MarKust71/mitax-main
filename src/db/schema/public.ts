@@ -13,6 +13,7 @@ import {
 } from 'drizzle-orm/pg-core';
 
 import type { ModuleKey } from '@/lib/modules';
+import type { PermissionKey } from '@/lib/permissions';
 import { USER_ROLES } from '@/lib/roles';
 
 // Application parameters (key/value), e.g. the activation link validity period.
@@ -108,6 +109,12 @@ export const userContexts = pgTable(
     contextId: uuid('context_id')
       .notNull()
       .references(() => contexts.id, { onDelete: 'cascade' }),
+    // Permissions of a USER in this context (see src/lib/permissions.ts).
+    permissions: text('permissions')
+      .array()
+      .$type<PermissionKey[]>()
+      .notNull()
+      .default(sql`'{}'::text[]`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [

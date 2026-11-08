@@ -41,7 +41,7 @@ export const listBankPayments = async (
     .where(
       and(
         eq(bankTransactions.contextId, contextId),
-        access.scope === 'oswiata' ? eq(bankTransactions.isOswiata, true) : undefined,
+        access.scope === 'oswiataOnly' ? eq(bankTransactions.isOswiata, true) : undefined,
       ),
     )
     .orderBy(desc(bankTransactions.bookingDate), desc(bankTransactions.createdAt))

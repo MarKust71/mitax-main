@@ -40,6 +40,7 @@ export const BankStatements: React.FC<BankStatementsProps> = ({
   initialPayments,
   canImport,
   canMark,
+  restrictedView,
   ownAccounts,
   canManageAccounts,
 }) => {
@@ -92,8 +93,16 @@ export const BankStatements: React.FC<BankStatementsProps> = ({
       const result = await action(contextId, payment.id, value);
 
       if (result.ok) {
+        // In the restricted view a payment whose "oświata" flag was turned off goes back to the
+        // people who see everything, so it leaves this list.
         setPayments((current) =>
-          current.map((item) => (item.id === result.data.id ? result.data : item)),
+          current.flatMap((item) => {
+            if (item.id !== result.data.id) {
+              return [item];
+            }
+
+            return restrictedView && !result.data.isOswiata ? [] : [result.data];
+          }),
         );
         setMessage(null);
       } else {
@@ -103,6 +112,8 @@ export const BankStatements: React.FC<BankStatementsProps> = ({
     });
   };
 
+  // In the restricted view every payment is "oświata" already, so that filter would repeat "Wszystkie".
+  const visibleFilters = FILTERS.filter(({ id }) => !restrictedView || id !== 'oswiata');
   const visible = payments.filter((payment) => matches(payment, filter));
 
   return (
@@ -110,6 +121,12 @@ export const BankStatements: React.FC<BankStatementsProps> = ({
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Wyciągi bankowe</h1>
         <p className="text-sm text-muted-foreground">{contextName}</p>
+        {restrictedView && (
+          <p className="mt-1 text-sm text-muted-foreground">
+            Widzisz tylko wpłaty oznaczone jako „oświata”. Odznaczenie „oświata” zwraca wpłatę
+            osobom z wyższymi uprawnieniami i znika z tej listy.
+          </p>
+        )}
       </div>
 
       {canImport && (
@@ -150,7 +167,7 @@ export const BankStatements: React.FC<BankStatementsProps> = ({
       )}
 
       <div role="group" aria-label="Filtr wpłat" className="flex flex-wrap gap-1">
-        {FILTERS.map(({ id, label }) => (
+        {visibleFilters.map(({ id, label }) => (
           <Button
             key={id}
             type="button"

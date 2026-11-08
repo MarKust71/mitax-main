@@ -20,7 +20,7 @@ import { dedupKeys, parseStatement, sha256, StatementParseError } from '@/lib/ba
 import { getBankStatementsAccess } from '@/lib/bankStatementsAccess';
 import type { BankStatementsAccess } from '@/lib/bankStatementsAccess';
 import { paymentColumns, toBankPayment } from '@/lib/bankPayments';
-import { getModuleContext, UUID_PATTERN } from '@/lib/contexts';
+import { getContextPermissions, getModuleContext, UUID_PATTERN } from '@/lib/contexts';
 
 const FORBIDDEN = 'Brak uprawnień.';
 const UNEXPECTED = 'Nie udało się wykonać operacji. Spróbuj ponownie.';
@@ -43,7 +43,13 @@ const resolve = async (contextId: string): Promise<Resolved | null> => {
 
   const context = await getModuleContext(user, String(contextId ?? ''), 'bank_statements');
 
-  return context ? { user, contextId: context.id, access: getBankStatementsAccess(user) } : null;
+  if (!context) {
+    return null;
+  }
+
+  const permissions = await getContextPermissions(user, context.id);
+
+  return { user, contextId: context.id, access: getBankStatementsAccess(permissions) };
 };
 
 export async function importStatementAction(
@@ -194,7 +200,7 @@ const setFlag = async (
         )
         .for('update');
 
-      if (!current || (access.scope === 'oswiata' && !current.isOswiata)) {
+      if (!current || (access.scope === 'oswiataOnly' && !current.isOswiata)) {
         return { ok: false, error: NOT_FOUND } as const;
       }
 

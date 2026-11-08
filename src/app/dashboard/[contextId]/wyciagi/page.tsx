@@ -5,7 +5,7 @@ import { BankStatements } from '../../bankStatements/BankStatements';
 import { getCurrentUser } from '@/lib/auth/session';
 import { listBankPayments, listOwnAccounts } from '@/lib/bankPayments';
 import { getBankStatementsAccess } from '@/lib/bankStatementsAccess';
-import { getModuleContext } from '@/lib/contexts';
+import { getContextPermissions, getModuleContext } from '@/lib/contexts';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,7 +23,7 @@ export default async function Page({ params }: { params: Promise<{ contextId: st
     notFound();
   }
 
-  const access = getBankStatementsAccess(user);
+  const access = getBankStatementsAccess(await getContextPermissions(user, context.id));
   const [payments, ownAccounts] = await Promise.all([
     listBankPayments(context.id, access),
     listOwnAccounts(context.id),
@@ -36,6 +36,7 @@ export default async function Page({ params }: { params: Promise<{ contextId: st
       initialPayments={payments}
       canImport={access.canImport}
       canMark={access.canMark}
+      restrictedView={access.scope === 'oswiataOnly'}
       ownAccounts={ownAccounts}
       canManageAccounts={access.canManageAccounts}
     />

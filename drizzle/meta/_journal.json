@@ -43,6 +43,13 @@
       "when": 1794165240457,
       "tag": "0005_own_accounts",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794166016428,
+      "tag": "0006_user_context_permissions",
+      "breakpoints": true
     }
   ]
 }

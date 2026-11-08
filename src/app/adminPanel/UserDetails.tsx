@@ -5,25 +5,68 @@ import React, { useState, useTransition } from 'react';
 import { UserDetailsProps } from './AdminPanel.types';
 
 import { setUserBlockedAction, updateUserAction } from '@/app/actions/admin';
+import { PERMISSIONS } from '@/lib/permissions';
+import type { PermissionKey } from '@/lib/permissions';
 import { USER_ROLES } from '@/lib/roles';
 import type { UserRole } from '@/lib/roles';
 import { Button } from '@/components/ui/button';
 
 export const UserDetails: React.FC<UserDetailsProps> = ({ user, contexts, isSelf, onSaved }) => {
   const [role, setRole] = useState<UserRole>(user.role);
-  const [contextIds, setContextIds] = useState<string[]>(user.contextIds);
+  // contextId -> permissions in it; a context is assigned when it has an entry.
+  const [assignments, setAssignments] = useState<Record<string, PermissionKey[]>>(() =>
+    Object.fromEntries(
+      user.assignments.map(({ contextId, permissions }) => [contextId, permissions]),
+    ),
+  );
   const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
   const [blockedAt, setBlockedAt] = useState<string | null>(user.blockedAt);
   const [pending, startTransition] = useTransition();
 
   const toggleContext = (id: string) =>
-    setContextIds((current) =>
-      current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
-    );
+    setAssignments((current) => {
+      if (id in current) {
+        const { [id]: _removed, ...rest } = current;
+
+        void _removed;
+
+        return rest;
+      }
+
+      return { ...current, [id]: [] };
+    });
+
+  const togglePermission = (contextId: string, permission: PermissionKey) =>
+    setAssignments((current) => {
+      const granted = current[contextId] ?? [];
+
+      return {
+        ...current,
+        [contextId]: granted.includes(permission)
+          ? granted.filter((item) => item !== permission)
+          : [...granted, permission],
+      };
+    });
+
+  // Assigned contexts that have a module with permissions to grant.
+  const grantable = contexts
+    .filter((context) => context.id in assignments)
+    .map((context) => ({
+      context,
+      available: PERMISSIONS.filter(({ module }) => context.modules.includes(module)),
+    }))
+    .filter(({ available }) => available.length > 0);
 
   const handleSave = () =>
     startTransition(async () => {
-      const result = await updateUserAction({ userId: user.id, role, contextIds });
+      const result = await updateUserAction({
+        userId: user.id,
+        role,
+        assignments: Object.entries(assignments).map(([contextId, permissions]) => ({
+          contextId,
+          permissions,
+        })),
+      });
 
       if (result.ok) {
         onSaved({
@@ -109,11 +152,37 @@ export const UserDetails: React.FC<UserDetailsProps> = ({ user, contexts, isSelf
             <label key={context.id} className="flex items-center gap-2">
               <input
                 type="checkbox"
-                checked={contextIds.includes(context.id)}
+                checked={context.id in assignments}
                 onChange={() => toggleContext(context.id)}
               />
               {context.name}
             </label>
+          ))}
+      </fieldset>
+
+      <fieldset className="flex flex-col gap-2" disabled={role === 'ADMIN'}>
+        <legend className="mb-1 text-muted-foreground">Uprawnienia</legend>
+        {role === 'ADMIN' && <p>ADMIN ma wszystkie uprawnienia.</p>}
+        {role !== 'ADMIN' && grantable.length === 0 && (
+          <p className="text-muted-foreground">
+            Brak uprawnień do nadania. Przypisz kontekst z włączonym modułem.
+          </p>
+        )}
+        {role !== 'ADMIN' &&
+          grantable.map(({ context, available }) => (
+            <fieldset key={context.id} className="flex flex-col gap-1">
+              <legend className="font-medium">{context.name}</legend>
+              {available.map(({ key, label }) => (
+                <label key={key} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={assignments[context.id].includes(key)}
+                    onChange={() => togglePermission(context.id, key)}
+                  />
+                  {label}
+                </label>
+              ))}
+            </fieldset>
           ))}
       </fieldset>
 
