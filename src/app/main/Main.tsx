@@ -3,15 +3,12 @@
 import React from 'react';
 import { Box, Link, Typography } from '@mui/material';
 
-import { AuthButton } from '../auth/authButton/AuthButton';
-
 import { MainProps } from './Main.types';
 import { styles } from './Main.styles';
 
 export const Main: React.FC<MainProps> = ({}) => {
   return (
     <Box sx={styles.wrapper}>
-      <AuthButton />
       <Typography variant="h6">{'MITAX Consulting sp. z o.o.'}</Typography>
       <Box sx={{ mb: 2 }} />
       <Typography>ul. Warszawska 4/8</Typography>
