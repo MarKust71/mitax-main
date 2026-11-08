@@ -14,7 +14,10 @@ import {
   TextField,
 } from '@mui/material';
 
+import { MainRoutes } from '../../../routing/MainRouter.constants';
+
 import { AuthDialogProps } from './AuthDialog.types';
+
 
 import { loginAction, registerAction, resendActivationAction } from '@/app/actions/auth';
 import type { AuthActionResult } from '@/app/actions/authTypes';
@@ -48,7 +51,8 @@ export const AuthDialog: React.FC<AuthDialogProps> = ({}) => {
       if (response.ok && response.user) {
         setUser(response.user);
         handleClose();
-        router.refresh();
+        // Logging in (not registering, which returns no user) leads to the dashboard.
+        router.push(MainRoutes.DASHBOARD);
 
         return;
       }
