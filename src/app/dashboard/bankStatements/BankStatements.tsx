@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useTransition } from 'react';
+import { FileText, Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { OSWIATA_FILTER_OPTIONS, PROCESSED_FILTER_OPTIONS } from './BankStatements.constants';
@@ -50,6 +51,7 @@ export const BankStatements: React.FC<BankStatementsProps> = ({
 }) => {
   const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
   const [payments, setPayments] = useState(initialPayments);
   const [oswiataFilter, setOswiataFilter] = useState<TriFilter>('all');
   const [processedFilter, setProcessedFilter] = useState<TriFilter>('all');
@@ -99,6 +101,7 @@ export const BankStatements: React.FC<BankStatementsProps> = ({
         if (fileInput.current) {
           fileInput.current.value = '';
         }
+        setFileName(null);
         router.refresh();
       } else {
         setMessage({ error: true, text: result.error });
@@ -169,23 +172,49 @@ export const BankStatements: React.FC<BankStatementsProps> = ({
             <CardTitle>Wczytaj wyciąg</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-3 text-sm">
-            <form onSubmit={handleImport} className="flex flex-wrap items-center gap-2">
-              <input
-                ref={fileInput}
-                type="file"
-                name="file"
-                accept=".sta,.mt940,.mt940x,.940,.940x,.txt,.xml,text/xml,text/plain"
-                aria-label="Plik wyciągu"
-                required
-                className="min-w-0 flex-1 text-sm"
-              />
-              <Button type="submit" disabled={importing}>
-                {importing ? 'Wczytywanie…' : 'Wczytaj'}
+            <form
+              onSubmit={handleImport}
+              className="flex flex-col gap-3 sm:flex-row sm:items-stretch"
+            >
+              <label
+                className={cn(
+                  'flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-lg border-2 border-dashed',
+                  'px-4 py-3 transition-colors',
+                  'focus-within:ring-2 focus-within:ring-ring hover:border-foreground/40 hover:bg-muted/50',
+                  fileName ? 'border-foreground/30 bg-muted/40' : 'border-border',
+                )}
+              >
+                <input
+                  ref={fileInput}
+                  type="file"
+                  name="file"
+                  accept=".sta,.mt940,.mt940x,.940,.940x,.txt,.xml,text/xml,text/plain"
+                  aria-label="Plik wyciągu"
+                  required
+                  onChange={(event) => setFileName(event.target.files?.[0]?.name ?? null)}
+                  className="sr-only"
+                />
+                {fileName ? (
+                  <FileText aria-hidden className="size-5 shrink-0" />
+                ) : (
+                  <Upload aria-hidden className="size-5 shrink-0 text-muted-foreground" />
+                )}
+                <span className="flex min-w-0 flex-col">
+                  <span className="truncate font-medium">
+                    {fileName ?? 'Kliknij, aby wybrać plik wyciągu'}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {fileName ? 'Kliknij, aby wybrać inny plik' : 'Erste (MT940x) lub BPS (XML)'}
+                  </span>
+                </span>
+              </label>
+              <Button type="submit" size="lg" disabled={importing || !fileName} className="sm:px-6">
+                {importing ? 'Wczytywanie…' : 'Wczytaj wyciąg'}
               </Button>
             </form>
             <p className="text-xs text-muted-foreground">
-              Erste: MT940. BPS: XML. Format jest rozpoznawany po zawartości pliku; zapisywane są
-              tylko wpłaty, a wcześniej wczytane są pomijane.
+              Format jest rozpoznawany po zawartości pliku. Zapisywane są tylko wpłaty, a wcześniej
+              wczytane są pomijane.
             </p>
           </CardContent>
         </Card>
