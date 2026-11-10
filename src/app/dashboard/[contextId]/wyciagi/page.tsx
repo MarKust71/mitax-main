@@ -26,7 +26,8 @@ export default async function Page({ params }: { params: Promise<{ contextId: st
   const access = getBankStatementsAccess(await getContextPermissions(user, context.id));
   const [payments, ownAccounts] = await Promise.all([
     listBankPayments(context.id, access),
-    listOwnAccounts(context.id),
+    // The own accounts list is visible only to users who may manage it.
+    access.canManageAccounts ? listOwnAccounts(context.id) : Promise.resolve([]),
   ]);
 
   return (

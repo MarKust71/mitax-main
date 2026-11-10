@@ -312,11 +312,9 @@ export const BankStatements: React.FC<BankStatementsProps> = ({
       </div>
       <p className="text-xs text-muted-foreground">Wyświetlane jest do 500 najnowszych wpłat.</p>
 
-      <OwnAccounts
-        contextId={contextId}
-        initialAccounts={ownAccounts}
-        canManage={canManageAccounts}
-      />
+      {canManageAccounts && (
+        <OwnAccounts contextId={contextId} initialAccounts={ownAccounts} canManage />
+      )}
     </section>
   );
 };
