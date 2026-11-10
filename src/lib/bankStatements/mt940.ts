@@ -53,7 +53,7 @@ const toIsoDate = (yymmdd: string, entryMmdd?: string): string => {
 };
 
 // Polish banks put structured data in :86: as "020~00TYPE~20TITLE~21...~32NAME~38IBAN"
-// (some use "?" instead of "~"). Anything else is kept as the title.
+// (some use "?" or ">" instead of "~"). Anything else is kept as the title.
 type Details = {
   title: string | null;
   counterpartyName: string | null;
@@ -62,7 +62,7 @@ type Details = {
 
 const parseDetails = (raw: string): Details => {
   const flat = raw.replace(/\r?\n/g, '');
-  const separator = /[~?]\d{2}/.test(flat) ? /[~?](?=\d{2})/ : null;
+  const separator = /[~?>]\d{2}/.test(flat) ? /[~?>](?=\d{2})/ : null;
 
   if (!separator) {
     return { title: clean(raw), counterpartyName: null, counterpartyAccount: null };

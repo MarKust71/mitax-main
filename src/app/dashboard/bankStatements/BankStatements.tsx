@@ -174,7 +174,7 @@ export const BankStatements: React.FC<BankStatementsProps> = ({
                 ref={fileInput}
                 type="file"
                 name="file"
-                accept=".sta,.mt940,.940,.txt,.xml,text/xml,text/plain"
+                accept=".sta,.mt940,.mt940x,.940,.940x,.txt,.xml,text/xml,text/plain"
                 aria-label="Plik wyciągu"
                 required
                 className="min-w-0 flex-1 text-sm"
