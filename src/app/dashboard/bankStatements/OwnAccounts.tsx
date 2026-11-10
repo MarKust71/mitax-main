@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import React, { useState, useTransition } from 'react';
 
 import type { OwnAccountsProps } from './BankStatements.types';
@@ -15,6 +16,7 @@ export const OwnAccounts: React.FC<OwnAccountsProps> = ({
   initialAccounts,
   canManage,
 }) => {
+  const router = useRouter();
   const [accounts, setAccounts] = useState(initialAccounts);
   const [accountNumber, setAccountNumber] = useState('');
   const [label, setLabel] = useState('');
@@ -31,6 +33,8 @@ export const OwnAccounts: React.FC<OwnAccountsProps> = ({
         setAccountNumber('');
         setLabel('');
         setError(null);
+        // Reload the payments list: the account's payments are hidden (or shown again).
+        router.refresh();
       } else {
         setError(result.error);
       }
@@ -44,6 +48,8 @@ export const OwnAccounts: React.FC<OwnAccountsProps> = ({
       if (result.ok) {
         setAccounts((current) => current.filter((account) => account.id !== id));
         setError(null);
+        // Reload the payments list: the account's payments are hidden (or shown again).
+        router.refresh();
       } else {
         setError(result.error);
       }

@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { and, asc, desc, eq } from 'drizzle-orm';
+import { and, asc, desc, eq, isNull, notInArray, or, sql } from 'drizzle-orm';
 
 import type { BankPayment, OwnAccount } from '@/app/actions/bankStatementsTypes';
 import { db } from '@/db';
@@ -30,17 +30,34 @@ export const toBankPayment = ({ processedAt, ...row }: PaymentRow): BankPayment 
   processedAt: processedAt ? processedAt.toISOString() : null,
 });
 
-// The newest payments of a context, restricted to what the user's scope allows.
+// Same normalization as normalizeAccount(): no whitespace, upper case, no "PL" before an NRB.
+const normalizedCounterpartyAccount = sql<string>`regexp_replace(
+  upper(regexp_replace(${bankTransactions.counterpartyAccount}, '\\s', '', 'g')),
+  '^PL(?=\\d{26}$)',
+  ''
+)`;
+
+// The newest payments of a context, restricted to what the user's scope allows. Payments from the
+// context's own accounts are left out, also those imported before the account was added.
 export const listBankPayments = async (
   contextId: string,
   access: BankStatementsAccess,
 ): Promise<BankPayment[]> => {
+  const own = db
+    .select({ accountNumber: ownAccounts.accountNumber })
+    .from(ownAccounts)
+    .where(eq(ownAccounts.contextId, contextId));
+
   const rows = await db
     .select(paymentColumns)
     .from(bankTransactions)
     .where(
       and(
         eq(bankTransactions.contextId, contextId),
+        or(
+          isNull(bankTransactions.counterpartyAccount),
+          notInArray(normalizedCounterpartyAccount, own),
+        ),
         access.scope === 'oswiataOnly' ? eq(bankTransactions.isOswiata, true) : undefined,
       ),
     )
