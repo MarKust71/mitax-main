@@ -158,7 +158,7 @@ export const BankStatements: React.FC<BankStatementsProps> = ({
         {restrictedView && (
           <p className="mt-1 text-sm text-muted-foreground">
             Widzisz tylko wpłaty oznaczone jako „oświata”. Odznaczenie „oświata” zwraca wpłatę
-            osobom z wyższymi uprawnieniami i znika z tej listy.
+            osobom z wyższymi uprawnieniami, a zapis znika z tej listy.
           </p>
         )}
       </div>
