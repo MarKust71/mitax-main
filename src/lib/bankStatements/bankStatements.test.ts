@@ -21,6 +21,23 @@ const MT940 = `{1:F01ERSTPLPWAXXX0000000000}{2:O9401200241115ERSTPLPWAXXX0000000
 :62F:C241115PLN2364,00
 -}`;
 
+// Erste MT940 with payer data: sub-fields separated by ">", lines wrapped at 65 characters.
+// Names and account numbers are made up.
+const ERSTE_STRUCTURED = `{1:F0107810977    }{2:094007810977     N}{4:
+:20:26110909023
+:25:PL11111111111111111111111111
+:28C:26027/1
+:60F:C261107PLN516937,84
+:61:261109CN1040,52NTRFNONREF
+:86:>20Jan Kowalski zawód. Monterzabudowy i robót wykończeni
+owych wbudownictwie.>3198105015751000009215141541>32KOWALSKI J
+AN ŻYTNIA 10/1 53-506 WROCŁAW ELIXIR 06-11-2026
+:61:261109DN146,37FCHGNONREF
+:86:>20ORDER 1>3175114011400000215160001002>32OVH Sp. z o
+.o.
+:62F:C261109PLN512531,01
+-}`;
+
 // Structure of a real BPS export; names and account numbers are made up.
 // Real Erste export layout: :86: is free text without structured sub-fields (no payer data).
 // The account number is made up.
@@ -135,6 +152,23 @@ describe('parseStatement', () => {
         counterpartyName: null,
         counterpartyAccount: null,
         title: 'Czynsz najmu lokalu i kosztyeksploatacyjne - listopad 2026',
+        bankReference: null,
+      },
+    ]);
+  });
+
+  test('reads Erste MT940 with ">"-separated payer data', () => {
+    const { payments } = parseStatement(bytes(ERSTE_STRUCTURED));
+
+    expect(payments).toEqual([
+      {
+        accountNumber: 'PL11111111111111111111111111',
+        bookingDate: '2026-11-09',
+        amount: '1040.52',
+        currency: 'PLN',
+        counterpartyName: 'KOWALSKI JAN ŻYTNIA 10/1 53-506 WROCŁAW ELIXIR 06-11-2026',
+        counterpartyAccount: '98105015751000009215141541',
+        title: 'Jan Kowalski zawód. Monterzabudowy i robót wykończeniowych wbudownictwie.',
         bankReference: null,
       },
     ]);
