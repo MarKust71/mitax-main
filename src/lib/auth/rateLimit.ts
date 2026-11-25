@@ -6,7 +6,7 @@ import { db } from '@/db';
 import { authAttempts } from '@/db/schema';
 import { getNumberSetting } from '@/lib/settings';
 
-export type AttemptKind = 'login' | 'register' | 'resend';
+export type AttemptKind = 'login' | 'register' | 'resend' | 'reset';
 
 // Records an attempt and returns false when the limit for this e-mail + kind is exceeded.
 export const registerAttempt = async (email: string, kind: AttemptKind): Promise<boolean> => {

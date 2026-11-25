@@ -55,6 +55,21 @@ export const emailVerificationTokens = pgTable(
   (table) => [index('email_verification_tokens_user_id_idx').on(table.userId)],
 );
 
+// Same idea as the activation tokens, for the "forgot password" flow (one active token per user).
+export const passwordResetTokens = pgTable(
+  'password_reset_tokens',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull().unique(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [index('password_reset_tokens_user_id_idx').on(table.userId)],
+);
+
 // Server-side sessions; the cookie holds a random token, the table its SHA-256 hash.
 export const sessions = pgTable(
   'sessions',
@@ -76,7 +91,7 @@ export const authAttempts = pgTable(
   {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
     email: text('email').notNull(),
-    kind: text('kind').notNull(), // 'login' | 'register' | 'resend'
+    kind: text('kind').notNull(), // 'login' | 'register' | 'resend' | 'reset'
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [

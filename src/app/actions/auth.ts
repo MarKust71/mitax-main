@@ -8,6 +8,7 @@ import { db } from '@/db';
 import { users } from '@/db/schema';
 import { sendActivationLink } from '@/lib/auth/activation';
 import { hashPassword, verifyPassword } from '@/lib/auth/crypto';
+import { resetPassword, sendPasswordResetLink } from '@/lib/auth/passwordReset';
 import { registerAttempt } from '@/lib/auth/rateLimit';
 import { createSession, destroySession, getCurrentUser } from '@/lib/auth/session';
 import { getNumberSetting } from '@/lib/settings';
@@ -103,6 +104,69 @@ export async function resendActivationAction(formData: FormData): Promise<AuthAc
   }
 
   return { ok: true, message: 'Jeśli konto czeka na aktywację, wysłaliśmy nowy link.' };
+}
+
+export async function requestPasswordResetAction(formData: FormData): Promise<AuthActionResult> {
+  const email = readEmail(formData);
+
+  if (!EMAIL_PATTERN.test(email)) {
+    return { ok: false, error: 'Podaj prawidłowy adres e-mail.' };
+  }
+
+  if (!(await registerAttempt(email, 'reset'))) {
+    return { ok: false, error: TOO_MANY_ATTEMPTS };
+  }
+
+  const [user] = await db
+    .select({ id: users.id, emailVerifiedAt: users.emailVerifiedAt, blockedAt: users.blockedAt })
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
+
+  // Only for active accounts (an unverified one needs the activation link instead). The reply is
+  // the same either way, so the form cannot be used to probe which addresses are registered.
+  if (user?.emailVerifiedAt && !user.blockedAt) {
+    try {
+      await sendPasswordResetLink(user.id, email);
+    } catch (error) {
+      console.error('Sending the password reset e-mail failed:', error);
+
+      return { ok: false, error: MAIL_FAILED };
+    }
+  }
+
+  return {
+    ok: true,
+    message: 'Jeśli konto istnieje, wysłaliśmy na adres link do ustawienia nowego hasła.',
+  };
+}
+
+export async function resetPasswordAction(formData: FormData): Promise<AuthActionResult> {
+  const token = String(formData.get('token') ?? '');
+  const password = readPassword(formData);
+  const confirmation = String(formData.get('passwordConfirmation') ?? '');
+
+  const minLength = await getNumberSetting('passwordMinLength');
+
+  if (password.length < minLength || password.length > 200) {
+    return { ok: false, error: `Hasło musi mieć co najmniej ${minLength} znaków.` };
+  }
+
+  if (password !== confirmation) {
+    return { ok: false, error: 'Hasła nie są takie same.' };
+  }
+
+  const status = token ? await resetPassword(token, password) : 'invalid';
+
+  if (status === 'expired') {
+    return { ok: false, error: 'Link wygasł. Poproś o wysłanie nowego linku.' };
+  }
+
+  if (status === 'invalid') {
+    return { ok: false, error: 'Link jest nieprawidłowy lub został już wykorzystany.' };
+  }
+
+  return { ok: true, message: 'Hasło zostało zmienione. Możesz się teraz zalogować.' };
 }
 
 export async function loginAction(formData: FormData): Promise<AuthActionResult> {

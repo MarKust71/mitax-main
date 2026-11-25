@@ -18,11 +18,32 @@ import { MainRoutes } from '../../../routing/MainRouter.constants';
 
 import { AuthDialogProps } from './AuthDialog.types';
 
-
-import { loginAction, registerAction, resendActivationAction } from '@/app/actions/auth';
+import type { AuthMode } from '@/store/authStore';
+import {
+  loginAction,
+  registerAction,
+  requestPasswordResetAction,
+  resendActivationAction,
+} from '@/app/actions/auth';
 import type { AuthActionResult } from '@/app/actions/authTypes';
 import { useAuthStore } from '@/providers/AuthStoreProvider';
 
+
+const submitActions: Record<AuthMode, (formData: FormData) => Promise<AuthActionResult>> = {
+  login: loginAction,
+  register: registerAction,
+  forgot: requestPasswordResetAction,
+};
+
+const LABELS: Record<AuthMode, { title: string; submit: string; switchLink: string }> = {
+  login: { title: 'Logowanie', submit: 'Zaloguj', switchLink: 'Nie masz konta? Zarejestruj się' },
+  register: {
+    title: 'Rejestracja',
+    submit: 'Zarejestruj',
+    switchLink: 'Masz już konto? Zaloguj się',
+  },
+  forgot: { title: 'Reset hasła', submit: 'Wyślij link', switchLink: 'Wróć do logowania' },
+};
 
 export const AuthDialog: React.FC<AuthDialogProps> = ({}) => {
   const router = useRouter();
@@ -35,6 +56,7 @@ export const AuthDialog: React.FC<AuthDialogProps> = ({}) => {
   const closeDialog = useAuthStore((state) => state.closeDialog);
 
   const isLogin = mode === 'login';
+  const isForgot = mode === 'forgot';
 
   const handleClose = () => {
     setResult(null);
@@ -46,7 +68,7 @@ export const AuthDialog: React.FC<AuthDialogProps> = ({}) => {
     const formData = new FormData(event.currentTarget);
 
     startTransition(async () => {
-      const response = await (isLogin ? loginAction(formData) : registerAction(formData));
+      const response = await submitActions[mode](formData);
 
       if (response.ok && response.user) {
         setUser(response.user);
@@ -73,7 +95,7 @@ export const AuthDialog: React.FC<AuthDialogProps> = ({}) => {
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs">
       <form onSubmit={handleSubmit}>
-        <DialogTitle>{isLogin ? 'Logowanie' : 'Rejestracja'}</DialogTitle>
+        <DialogTitle>{LABELS[mode].title}</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ pt: 1 }}>
             {result && (
@@ -89,16 +111,35 @@ export const AuthDialog: React.FC<AuthDialogProps> = ({}) => {
               required
               autoFocus
             />
-            <TextField
-              name="password"
-              type="password"
-              label="Hasło"
-              autoComplete={isLogin ? 'current-password' : 'new-password'}
-              required
-            />
+            {isForgot ? (
+              <Alert severity="info">
+                {'Podaj adres e-mail konta - wyślemy na niego link do ustawienia nowego hasła.'}
+              </Alert>
+            ) : (
+              <TextField
+                name="password"
+                type="password"
+                label="Hasło"
+                autoComplete={isLogin ? 'current-password' : 'new-password'}
+                required
+              />
+            )}
             {isLogin && (
               <Link component="button" type="button" variant="body2" onClick={handleResend}>
                 {'Wyślij ponownie link aktywacyjny'}
+              </Link>
+            )}
+            {isLogin && (
+              <Link
+                component="button"
+                type="button"
+                variant="body2"
+                onClick={() => {
+                  setResult(null);
+                  setMode('forgot');
+                }}
+              >
+                {'Nie pamiętasz hasła?'}
               </Link>
             )}
             <Link
@@ -110,14 +151,14 @@ export const AuthDialog: React.FC<AuthDialogProps> = ({}) => {
                 setMode(isLogin ? 'register' : 'login');
               }}
             >
-              {isLogin ? 'Nie masz konta? Zarejestruj się' : 'Masz już konto? Zaloguj się'}
+              {LABELS[mode].switchLink}
             </Link>
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>{'Anuluj'}</Button>
           <Button type="submit" variant="contained" disabled={pending}>
-            {isLogin ? 'Zaloguj' : 'Zarejestruj'}
+            {LABELS[mode].submit}
           </Button>
         </DialogActions>
       </form>
