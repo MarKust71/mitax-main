@@ -2,7 +2,7 @@ import { createStore } from 'zustand/vanilla';
 
 import type { AuthUser } from '@/app/actions/authTypes';
 
-export type AuthMode = 'login' | 'register';
+export type AuthMode = 'login' | 'register' | 'forgot';
 
 export type AuthState = {
   user: AuthUser | null;
