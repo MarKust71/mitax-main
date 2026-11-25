@@ -110,3 +110,6 @@ dist
 # next.js
 .next/
 next-env.d.ts
+
+# local documentation (not committed)
+/docs/
