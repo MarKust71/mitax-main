@@ -4,26 +4,11 @@ import { eq } from 'drizzle-orm';
 
 import { db } from '@/db';
 import { appSettings } from '@/db/schema';
+import { SETTING_DB_KEYS, SETTING_DEFAULTS } from '@/lib/settingsMeta';
+import type { SettingKey } from '@/lib/settingsMeta';
 
-// Known keys of the `app_settings` table with fallbacks used when a row is missing.
-export const SETTING_DEFAULTS = {
-  activationLinkTtlHours: 24,
-  sessionTtlDays: 30,
-  authMaxAttempts: 5,
-  authAttemptsWindowMinutes: 15,
-  passwordMinLength: 10,
-} as const;
-
-export type SettingKey = keyof typeof SETTING_DEFAULTS;
-
-// Row keys in the `app_settings` table.
-const SETTING_DB_KEYS: Record<SettingKey, string> = {
-  activationLinkTtlHours: 'activation_link_ttl_hours',
-  sessionTtlDays: 'session_ttl_days',
-  authMaxAttempts: 'auth_max_attempts',
-  authAttemptsWindowMinutes: 'auth_attempts_window_minutes',
-  passwordMinLength: 'password_min_length',
-};
+export { SETTING_DEFAULTS };
+export type { SettingKey };
 
 export const getNumberSetting = async (key: SettingKey): Promise<number> => {
   const [row] = await db
@@ -35,4 +20,39 @@ export const getNumberSetting = async (key: SettingKey): Promise<number> => {
   const parsed = Number(row?.value);
 
   return Number.isFinite(parsed) && parsed > 0 ? parsed : SETTING_DEFAULTS[key];
+};
+
+// Current value of every known setting (the fallback when its row is missing or invalid).
+export const getAllNumberSettings = async (): Promise<Record<SettingKey, number>> => {
+  const rows = await db
+    .select({ key: appSettings.key, value: appSettings.value })
+    .from(appSettings);
+  const byKey = new Map(rows.map(({ key, value }) => [key, Number(value)]));
+
+  return Object.fromEntries(
+    (Object.keys(SETTING_DEFAULTS) as SettingKey[]).map((key) => {
+      const parsed = byKey.get(SETTING_DB_KEYS[key]);
+
+      return [
+        key,
+        parsed !== undefined && Number.isFinite(parsed) && parsed > 0
+          ? parsed
+          : SETTING_DEFAULTS[key],
+      ];
+    }),
+  ) as Record<SettingKey, number>;
+};
+
+export const setNumberSetting = async (
+  executor: Pick<typeof db, 'insert'>,
+  key: SettingKey,
+  value: number,
+): Promise<void> => {
+  await executor
+    .insert(appSettings)
+    .values({ key: SETTING_DB_KEYS[key], value: String(value) })
+    .onConflictDoUpdate({
+      target: appSettings.key,
+      set: { value: String(value), updatedAt: new Date() },
+    });
 };

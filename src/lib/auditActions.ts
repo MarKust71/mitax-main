@@ -10,6 +10,7 @@ export const AUDIT_ACTIONS = {
   contextModulesChanged: 'context.modules_changed',
   userAccessChanged: 'user.access_changed',
   userRoleChanged: 'user.role_changed',
+  settingChanged: 'setting.changed',
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];
@@ -25,4 +26,5 @@ export const AUDIT_ACTION_LABELS: Record<AuditAction, string> = {
   'context.modules_changed': 'Zmieniono moduły kontekstu',
   'user.access_changed': 'Zmieniono dostęp użytkownika do kontekstu',
   'user.role_changed': 'Zmieniono rolę użytkownika',
+  'setting.changed': 'Zmieniono ustawienie aplikacji',
 };

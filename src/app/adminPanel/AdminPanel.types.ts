@@ -1,11 +1,13 @@
 import type { AdminContext, AdminUserDetails, AdminUserListItem } from '../actions/adminTypes';
 import type { AuditLogPage } from '../actions/auditLogTypes';
+import type { AppSettingsValues } from '../actions/settingsTypes';
 
 export type AdminPanelProps = {
   currentUserId: string;
   initialUsers: AdminUserListItem[];
   initialContexts: AdminContext[];
   initialAuditLog: AuditLogPage;
+  initialSettings: AppSettingsValues;
 };
 
 export type UserDetailsProps = {
@@ -30,4 +32,8 @@ export type UsersPanelProps = {
 export type ActivityLogPanelProps = {
   contexts: AdminContext[];
   initialPage: AuditLogPage;
+};
+
+export type SettingsPanelProps = {
+  initialSettings: AppSettingsValues;
 };
